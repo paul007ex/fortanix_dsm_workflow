@@ -82,12 +82,6 @@ def print_debug(*args, level="INFO", **kwargs):
         for arg in args:
             print(level_prefix, colored(pp.pformat(arg), color))
 
-def print_debug_old (*args, **kwargs):
-    if cl_args.debug:
-        pp = pprint.PrettyPrinter(indent=4)  # Create a PrettyPrinter instance
-        for arg in args:
-            pp.pprint(arg)
-
    
 def get_api_instance(name):
     return api_instances[name]
@@ -258,11 +252,6 @@ def create_key_check_existing(key_type, size, name=None, elliptic_curve=None):
     # Add the key ID to the global list for cleanup
     keys.append(kid)
     return kid
-
-def support_sign_verify(object_type):
-    if object_type in [ObjectType.RSA, ObjectType.EC]:
-        return True
-    return False
 
 
 def encrypt(key_id, plain, object_type, mode=None):
@@ -459,7 +448,7 @@ def decrypt(key_id, cipher, object_type, mode=None, iv=None):
     - Exception: If the signature does not match the digest or any other verification error occurs.
 
     """
-    print("Verifying signature...")
+    print("Verifying signature...", )
 
     # Step 1: Create a VerifyRequest object with the provided parameters
     verify_request = sdkms.v1.VerifyRequest(
@@ -740,139 +729,156 @@ def generate_digest(data, algorithm=DigestAlgorithm.SHA256):
 
 
 if __name__ == '__main__':
+   
     """
     Main Function: Demonstrates the secure communication process between two entities (John and Priya)
     using Fortanix DSM for key management and cryptographic operations.
 
     Workflow:
     1. Parse input arguments to initialize the program configuration.
-       - Input: API endpoint, API key, SSL verification settings.
-       - Function: `parse_arguments()`
-       - Output: Configuration variables (`cl_args`).
-    
+    - Input: API endpoint, API key, SSL verification settings.
+    - Function: `parse_arguments()`
+    - Output: Configuration variables (`cl_args`).
+
     2. Initialize the DSM client for secure communication.
-       - Input: Configuration variables.
-       - Function: `initialize_dsm_client()`
-       - Output: API instances for interacting with DSM.
+    - Input: Configuration variables.
+    - Function: `initialize_dsm_client()`
+    - Output: API instances for interacting with DSM.
 
     3. Define the plaintext message to be securely transmitted.
-       - Example: `message_to_priya = "Hello Priya!"`
+    - Example: `message_to_priya = "Hello Priya!"`
 
     4. Create or retrieve cryptographic RSA keys for John and Priya.
-       - Function: `create_key_check_existing()`
-       - Input:
-           - Key name (e.g., "johns rsa key", "priya's rsa key").
-           - Key type (`RSA`).
-           - Key size (e.g., 2048 bits).
-       - Output: Unique Key IDs (`john_key_id`, `priya_key_id`).
+    - Function: `create_key_check_existing()`
+    - Input:
+        - Key name (e.g., "johns rsa key", "priya's rsa key").
+        - Key type (`RSA`).
+        - Key size (e.g., 2048 bits).
+    - Output: Unique Key IDs (`john_key_id`, `priya_key_id`).
 
     5. Encrypt the plaintext message with Priya's public key for confidentiality.
-       - Function: `encrypt()`
-       - Input:
-           - Priya's public key ID (`priya_key_id`).
-           - Plaintext message (`message_to_priya`).
-           - Encryption algorithm (`RSA`).
-       - Output: Ciphertext (`john_cipher_to_priya`) and optional IV.
+    - Function: `encrypt()`
+    - Input:
+        - Priya's public key ID (`priya_key_id`).
+        - Plaintext message (`message_to_priya`).
+        - Encryption algorithm (`RSA`).
+    - Output: Ciphertext (`john_cipher_to_priya`) and optional IV.
 
     6. Sign the plaintext message with John's private key for authenticity.
-       - Function: `sign_digest()`
-       - Input:
-           - John's private key ID (`john_key_id`).
-           - Plaintext message (`message_to_priya`).
-           - Hashing algorithm (default: `SHA256`).
-       - Output: Digital signature (`signed_message_with_johns_key`).
+    - Function: `sign_digest()`
+    - Input:
+        - John's private key ID (`john_key_id`).
+        - Plaintext message (`message_to_priya`).
+        - Hashing algorithm (default: `SHA256`).
+    - Output: Digital signature (`signed_message_with_johns_key`).
 
     7. Decrypt the ciphertext with Priya's private key to retrieve the plaintext.
-       - Function: `decrypt()`
-       - Input:
-           - Priya's private key ID (`priya_key_id`).
-           - Ciphertext (`john_cipher_to_priya`).
-           - Encryption algorithm (`RSA`).
-       - Output: Decrypted plaintext (`decrypted_message_with_priyas_private_key`).
+    - Function: `decrypt()`
+    - Input:
+        - Priya's private key ID (`priya_key_id`).
+        - Ciphertext (`john_cipher_to_priya`).
+        - Encryption algorithm (`RSA`).
+    - Output: Decrypted plaintext (`decrypted_message_with_priyas_private_key`).
 
-    8. Verify the digital signature using John's public key to confirm authenticity.
-       - Function: `verify_digest_signature()`
-       - Input:
-           - John's public key ID (`john_key_id`).
-           - Digest of the plaintext message.
-           - Digital signature (`signed_message_with_johns_key`).
-       - Output: Verification status (`True` if valid, raises Exception otherwise).
+    8. Validate the decrypted message to ensure it matches the original plaintext.
+    - Function: `assert`
+    - Input:
+        - Original plaintext (`message_to_priya`).
+        - Decrypted plaintext (`decrypted_message`).
+    - Output: Assertion to verify data integrity.
 
-    9. Validate the integrity of the communication by comparing decrypted plaintext with the original message.
-       - Function: `validate_message_integrity()`
-       - Input:
-           - Original message (`message_to_priya`).
-           - Decrypted message (`decrypted_message`).
-           - Signature verification result.
-       - Output: Assertion and validation feedback.
+    9. Verify the digital signature using John's public key to confirm authenticity.
+    - Function: `verify_digest_signature()`
+    - Input:
+        - John's public key ID (`john_key_id`).
+        - Digest of the plaintext message.
+        - Digital signature (`signed_message_with_johns_key`).
+    - Output: Verification status (`True` if valid, raises Exception otherwise).
 
     Secure Communication Flow:
     +------------------+               +-------------------+
     |   John (Sender)  |               |   Priya (Receiver)|
     +------------------+               +-------------------+
             |                                |
-       [Create Keys]                      [Create Keys]
+    [Create Keys]                      [Create Keys]
             |                                |
             v                                v
-     [Encrypt Message]  ------------->  [Decrypt Message]
+    [Encrypt Message]  ------------->  [Decrypt Message]
             |                                |
-     [Sign Plaintext]                      [Verify Signature]
+    [Sign Plaintext]                      [Verify Signature]
             |                                |
             v                                v
-      [Send Cipher & Sig]          [Verify Integrity & Auth]
-
+    [Send Cipher & Sig]          [Validate Integrity & Auth]
     """
 
-    # Step 1: Parse arguments and initialize API clients
-    parse_arguments()
-    initialize_dsm_client()
+    try:
+        # Step 1: Parse arguments and initialize DSM client
+        print("\n[Step 1] Initializing DSM Client...")
+        parse_arguments()
+        initialize_dsm_client()
+        print("DSM Client initialized successfully.\n")
 
-    # Step 2: Define the plaintext message
-    message_to_priya = 'Hello Priya!'  # The message John wants to send securely to Priya
+        # Step 2: Define the plaintext message
+        print("[Step 2] Defining the message to be sent...")
+        message_to_priya = 'Hello Priya!'
+        print(f"Message: {message_to_priya}\n")
 
-    # Step 3: Create or retrieve RSA keys for John and Priya
-    john_key_id = create_key_check_existing(ObjectType.RSA, size=2048, name='johns rsa key')
-    priya_key_id = create_key_check_existing(ObjectType.RSA, size=2048, name="priya's rsa key")
+        # Step 3: Create or retrieve RSA keys for John and Priya
+        print("[Step 3] Creating or retrieving RSA keys...")
+        john_key_id = create_key_check_existing(ObjectType.RSA, size=2048, name='johns rsa key')
+        priya_key_id = create_key_check_existing(ObjectType.RSA, size=2048, name="priya's rsa key")
+        print(f"John's Key ID: {john_key_id}")
+        print(f"Priya's Key ID: {priya_key_id}\n")
 
-    # Log retrieved or created key IDs
-    print_debug(f"john_key_id: {john_key_id}", "INFO")
-    print_debug(f"priya_key_id: {priya_key_id}", "INFO")
+        # Step 4: Encrypt the plaintext message with Priya's public key
+        print("[Step 4] Encrypting the message using Priya's public key...")
+        john_cipher_to_priya, _ = encrypt(
+            key_id=priya_key_id,
+            object_type=ObjectType.RSA,
+            plain=bytearray(message_to_priya, 'utf-8')
+        )
+        print(f"Ciphertext sent to Priya: {john_cipher_to_priya}\n")
 
-    # Step 4: Encrypt the plaintext message with Priya's public key
-    john_cipher_to_priya, _ = encrypt(
-        key_id=priya_key_id,
-        object_type=ObjectType.RSA,
-        plain=bytearray(message_to_priya, 'utf-8')
-    )
-    print_debug(f"Ciphertext sent to Priya: {john_cipher_to_priya}", "INFO")
+        # Step 5: Sign the plaintext message with John's private key
+        print("[Step 5] Signing the message using John's private key...")
+        signed_message_with_johns_key = sign_digest(
+            key_id=john_key_id,
+            data=bytearray(message_to_priya, 'utf-8')
+        )
+        print(f"Digital Signature: {signed_message_with_johns_key}\n")
 
-    # Step 5: Sign the plaintext message with John's private key
-    signed_message_with_johns_key = sign_digest(
-        key_id=john_key_id,
-        data=bytearray(message_to_priya, 'utf-8')
-    )
-    print_debug(f"Signed message with John's key: {signed_message_with_johns_key}", "INFO")
+        # Step 6: Decrypt the ciphertext with Priya's private key
+        print("[Step 6] Decrypting the message using Priya's private key...")
+        decrypted_message_with_priyas_private_key = decrypt(
+            key_id=priya_key_id,
+            object_type=ObjectType.RSA,
+            cipher=john_cipher_to_priya
+        )
+        decrypted_message = decrypted_message_with_priyas_private_key.decode('utf-8')
+        print(f"Decrypted Message: {decrypted_message}\n")
 
-    # Step 6: Decrypt the ciphertext with Priya's private key
-    decrypted_message_with_priyas_private_key = decrypt(
-        key_id=priya_key_id,
-        object_type=ObjectType.RSA,
-        cipher=john_cipher_to_priya
-    )
-    decrypted_message = decrypted_message_with_priyas_private_key.decode('utf-8')
-    print_debug(f"Decrypted message with Priya's private key: {decrypted_message}", "INFO")
+        # Step 7: Verify the signature using John's public key
+        print("[Step 7] Verifying the digital signature using John's public key...")
+        message_digest = generate_digest(bytearray(message_to_priya, 'utf-8'))  # Generate digest for plaintext
+        verify_digest_signature(
+            key_id=john_key_id,
+            digest=message_digest,
+            signature=bytearray(signed_message_with_johns_key)
+        )
+        print("Signature verification successful.\n")
 
-    # Verify that the decrypted message matches the original message
-    assert decrypted_message == message_to_priya, \
-        f"Decrypted message does not match the original plaintext! Expected: {message_to_priya}, Got: {decrypted_message}"
-    print("Decryption successful. Message integrity verified.")
+        # Step 8: Validate the communication integrity
+        print("[Step 8] Validating message integrity and authenticity...")
+        validate_message_integrity(
+            original_message=message_to_priya,
+            decrypted_message=decrypted_message,
+            verified=True
+        )
+        print("Message integrity and authenticity validated successfully.\n")
 
-    # Step 7: Verify the signature using John's public key
-    message_digest = generate_digest(bytearray(message_to_priya, 'utf-8'))  # Generate digest for plaintext
-    verify_digest_signature(
-        key_id=john_key_id,
-        digest=message_digest,
-        signature=bytearray(signed_message_with_johns_key)
-    )
-    print("Signature verified successfully.")
+        # Final Summary
+        print("All steps completed successfully. Secure communication process verified.")
+
+    except Exception as e:
+        print(f"\n[ERROR] An error occurred: {e}")
 
