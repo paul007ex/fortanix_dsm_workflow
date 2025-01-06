@@ -293,6 +293,34 @@ class Workflows:
 
 # Main Function
 def main():
+
+    try:
+        """Entry point for the script."""
+        DSMClient.initialize()
+        # Parse workflow type
+        workflow = cl_args.workflow.lower()
+        message = "Hello Priya!"
+        if workflow == "aes":
+            Logger.log("Executing Basic AES Workflow.")      
+            Workflows.basic_aes_encryption(message)
+        elif workflow == "rsa":
+            Logger.log("Executing Basic RSA Workflow.")
+            Workflows.basic_rsa_workflow(message)
+        elif workflow == "combined":
+            Logger.log("Executing Advanced AES-RSA Combined Workflow.")
+            sender_rsa_key = CryptoManager.create_or_retrieve_key("John's RSA Key", ObjectType.RSA, 2048)
+            receiver_rsa_key = CryptoManager.create_or_retrieve_key("Priya's RSA Key", ObjectType.RSA, 2048)
+            shared_aes_key = CryptoManager.create_or_retrieve_key("Shared AES Key", ObjectType.AES, 256)
+            encrypted_data = Workflows.aes_rsa_combined_workflow(sender_rsa_key, receiver_rsa_key, shared_aes_key, message)
+            Logger.log(f"Encrypted Data: {encrypted_data}")
+        else:
+            Logger.log(f"Invalid workflow type: {workflow}. Please choose 'aes', 'rsa', or 'combined'.", level="ERROR")
+    except Exception as e:
+            Logger.log(f"An error occurred: {e}", level="ERROR")
+    finally:
+        Logger.log("Script execution completed.")
+
+def main_old():
     """Entry point for the script."""
     DSMClient.initialize()
 
