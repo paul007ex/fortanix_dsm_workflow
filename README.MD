@@ -82,16 +82,6 @@ Step 3: Signed Message:
 [[["Hello Priya"](AES Key)](John's RSA Public Key)] + [Digest("Hello Priya")](Signed with John's RSA Private Key)]
 ```
 
-```
-Step 1: Encrypt message with AES key:
-[Message](AES Key)
-
-Step 2: Encrypt AES key with RSA:
-[[Message](AES Key)](Receiver's RSA Public Key)
-
-Step 3: Sign message with RSA:
-[[[Message](AES Key)](Receiver's RSA Public Key)] + [Digest(Message)](Signed with Sender's RSA Private Key)
-
 Decryption reverses this process, with AES key decryption and message signature verification.
 ```
 
