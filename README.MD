@@ -71,24 +71,24 @@ Decryption reverses this process, with AES key decryption and message signature 
 🛠 Key Functions
 
 🔑 Key Management
-```create_or_retrieve_key(name, key_type, size):
+```create_or_retrieve_key(name, key_type, size):```
 Creates or retrieves cryptographic keys stored in DSM.
 Supported types: AES, RSA.
 
 🔒 Encryption
-```encrypt(key_id, plaintext, object_type, mode, iv):
+```encrypt(key_id, plaintext, object_type, mode, iv):```
 Encrypts plaintext using AES or RSA.
 
 🔑 Decryption
-```decrypt(key_id, ciphertext, object_type, mode, iv):
+```decrypt(key_id, ciphertext, object_type, mode, iv):```
 Decrypts ciphertext using AES or RSA.
 
 ✍️ Signing
-```sign(key_id, message):
+```sign(key_id, message):```
 Signs a message using RSA private key.
 
 ✅ Verification
-```verify(key_id, message, signature):
+```verify(key_id, message, signature):```
 Verifies a digital signature using RSA public key.
 
 
