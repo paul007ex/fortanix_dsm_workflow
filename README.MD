@@ -160,7 +160,7 @@ All workflows include step-by-step logging with clear messages and color-coded l
    ```
 3. Execute the script:
    ```bash
-   python secure_communication.py --api-key <Base64-Encoded-API-Key> --api-endpoint <DSM-Endpoint> --debug
+   python fortanix_secure_comm.py --api-key <Base64-Encoded-API-Key> --api-endpoint <DSM-Endpoint> --debug
    ```
 
 ---
@@ -183,4 +183,3 @@ This project is licensed under the MIT License.
 
 --- 
 
-Feel free to modify or expand this README to further align with organizational needs.
