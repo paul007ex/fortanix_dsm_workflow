@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Secure Communication Using Fortanix DSM - A Comprehensive Masterclass
+Secure Communication Using Fortanix DSM - 
 
 Description:
 This script showcases a secure communication protocol between a sender (e.g., John) and a receiver (e.g., Priya) leveraging the Fortanix Data Security Manager (DSM). It demonstrates best practices in cryptography and key management, covering:
