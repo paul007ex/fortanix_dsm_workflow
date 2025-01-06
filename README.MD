@@ -83,7 +83,6 @@ Step 3: Signed Message:
 ```
 
 Decryption reverses this process, with AES key decryption and message signature verification.
-```
 
 ---
 🛠 Key Functions
