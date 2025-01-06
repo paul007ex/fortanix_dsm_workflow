@@ -156,11 +156,11 @@ All workflows include step-by-step logging with clear messages and color-coded l
 1. Ensure Fortanix DSM is set up and accessible.
 2. Install dependencies:
    ```bash
-   pip install fortanix-sdkms termcolor
+   pip install sdkms termcolor
    ```
 3. Execute the script:
    ```bash
-   python fortanix_secure_comm.py --api-key <Base64-Encoded-API-Key> --api-endpoint <DSM-Endpoint> --debug
+   python fortanix_secure_comm.py --api-key <Base64-Encoded-API-Key> --api-endpoint <DSM-Endpoint> 
    ```
 
 ---
