@@ -1,177 +1,234 @@
+---
 
+# 🔐 Advanced Secure Communication Using Fortanix DSM
 
-# Fortanix Secure Communication Example
+## 📜 Overview
 
-This project demonstrates how to establish secure communication between two parties, John and Priya, using the Fortanix SDK and Data Security Manager (DSM). It showcases cryptographic operations including key management, encryption, signing, decryption, and signature verification.
+This project demonstrates secure communication workflows using the **Fortanix Data Security Manager (DSM)** for cryptographic operations. It includes **three core workflows**:
 
-The entire workflow is consolidated into a single script for clarity and ease of execution, leveraging Fortanix's powerful SDK to ensure compliance, security, and performance.
+1. **Basic RSA Workflow**: Asymmetric encryption and signing using RSA keys.
+2. **Basic AES Workflow**: Symmetric encryption and decryption using AES keys.
+3. **Hybrid RSA-AES Workflow**: Combining RSA and AES for advanced secure communication.
+
+The project is designed to **educate newcomers to cryptography** and **Fortanix DSM** while showcasing a robust, real-world implementation of secure communication protocols.
 
 ---
 
-## Key Features
+## 🧩 Features
 
 ### 🔑 Key Management
-- Securely generate or retrieve RSA keys for John and Priya from Fortanix DSM hosted at `https://apps.smartkey.io`.
+- **RSA Keys**:
+  - 2048-bit RSA keys for asymmetric encryption and signing.
+- **AES Keys**:
+  - 256-bit AES keys for symmetric encryption.
 
-### 🔒 Encryption
-- Encrypt plaintext messages using Priya's RSA public key stored in the DSM.
+All keys are securely stored and retrieved from the **Fortanix DSM**.
 
-### 🖋️ Signing
-- Sign plaintext messages using John's RSA private key stored in the DSM.
+### 🔒 Secure Workflows
+1. **Basic RSA Workflow**:
+   - Encrypt plaintext with the receiver's RSA public key.
+   - Sign the plaintext with the sender's RSA private key.
+   - Decrypt the ciphertext with the receiver's RSA private key.
+   - Verify the signature with the sender's RSA public key.
 
-### 🔓 Decryption
-- Decrypt ciphertext using Priya's RSA private key stored in the DSM.
+2. **Basic AES Workflow**:
+   - Encrypt plaintext with an AES key using **CBC mode**.
+   - Decrypt ciphertext with the same AES key.
 
-### ✅ Signature Verification
-- Verify the authenticity of the message using John's RSA public key retrieved from the DSM.
+3. **Hybrid RSA-AES Workflow**:
+   - Encrypt the message with an AES key (for efficiency).
+   - Encrypt the AES key with the receiver's RSA public key (for secure key exchange).
+   - Sign the plaintext with the sender's RSA private key.
+   - Decrypt the AES key and message and verify the signature.
 
----
+### 📋 Protocol Workflow Visualization
 
-## Prerequisites
+#### **Basic RSA Workflow**
+```
+[Message](RSA Public Key) → [Encrypted Message](Signed with Sender's RSA Private Key)
+[Encrypted Message](RSA Private Key) → [Decrypted Message](Verified with Sender's RSA Public Key)
+```
 
-### Environment Requirements
-- Python 3.8+
-- Fortanix SDK for Python (`sdkms`)
+#### **Basic AES Workflow**
+```
+[Message](AES Key) → [Encrypted Message](AES Key)
+[Encrypted Message](AES Key) → [Decrypted Message]
+```
 
-### Fortanix Account
-- A Fortanix DSM account at `https://apps.smartkey.io`
-- A valid API key in the format `base64-encoded 'username:password'`
+#### **Hybrid RSA-AES Workflow**
+```
+Step 1: Encrypt message with AES key:
+[Message](AES Key)
 
-### Install Dependencies
-Install the required Python libraries using:
-```bash
-pip install -r requirements.txt
+Step 2: Encrypt AES key with RSA:
+[[Message](AES Key)](Receiver's RSA Public Key)
+
+Step 3: Sign message with RSA:
+[[[Message](AES Key)](Receiver's RSA Public Key)] + [Digest(Message)](Signed with Sender's RSA Private Key)
+
+Decryption reverses this process, with AES key decryption and message signature verification.
 ```
 
 ---
 
-## File Overview
-
-### `fortanix_secure_comm_v1.py`
-This single script consolidates all necessary operations, including:
-- Initialization of the Fortanix SDK
-- Key management
-- Cryptographic operations (encryption, signing, decryption, and verification)
-
----
-
-## Workflow Explanation
-
-### ASCII Flow Diagram with Fortanix DSM Integration
-
-```plaintext
-+---------------------------+                                   +---------------------------+
-|       Fortanix DSM        |                                   |       Fortanix DSM        |
-|  https://apps.smartkey.io |                                   |  https://apps.smartkey.io |
-+---------------------------+                                   +---------------------------+
-         |                                                             |
-   Retrieve Key: "John's RSA Key"                               Retrieve Key: "Priya's RSA Key"
-         |                                                             |
-         v                                                             v
-+---------+                                   +---------+             +---------+
-|   John  |                                   |  Priya  |             |  Priya  |
-+---------+                                   +---------+             +---------+
-     |                                             |                        |
-Encrypt "Hello Priya!" with                        |                        |
-Priya's RSA Public Key                              |                        |
-     +-------------------------------------------> | Step 1: Receive Encrypted Message
-     |                                             |                        |
-Sign Plaintext with                                v                        |
-John's RSA Private Key                        Decrypt Ciphertext            |
-     +------------------------------------------->| with Priya's Private Key|
-     |                                             |                        |
-     |                                             v                        |
-Verify Signature with John's RSA Public Key  Verify Integrity of Decrypted Message
-```
-
----
-
-## Step-by-Step Workflow
-
-1. Key Management:
-   - Retrieve or generate RSA keys for John and Priya. If the keys already exist, their `key_id` is retrieved from Fortanix DSM.
-
-2. Message Encryption:
-   - John encrypts the plaintext message (`"Hello Priya!"`) using Priya's RSA public key.
-
-3. Message Signing:
-   - John signs the plaintext message using his RSA private key.
-
-4. Message Decryption:
-   - Priya decrypts the ciphertext using her RSA private key.
-
-5. Signature Verification:
-   - Priya verifies the signature using John's RSA public key, ensuring authenticity and message integrity.
-
----
-
-## Running the Script
-
-### Execution
-Run the consolidated script:
-```bash
-python fortanix_secure_comm_v1.py --api-key <base64-encoded-API-key>
-```
-
-### Output Example
-```plaintext
-Checking if key with name 'johns rsa key' already exists...
-Key with name 'johns rsa key' already exists. Skipping creation.
-Checking if key with name 'priya's rsa key' already exists...
-Key with name 'priya's rsa key' already exists. Skipping creation.
-john_key_id: e91c80b6-8045-4f99-a8de-fd218a21f740
-priya_key_id: 4abf50e1-9342-4b85-b134-2bc10c3ef120
-Encrypting data...
-Ciphertext sent to Priya: bytearray(b'...')
-Signing digest...
-Signed message with John's key: bytearray(b'...')
-Decrypting data...
-Decrypted message with Priya's private key: Hello Priya!
-Decryption successful. Message integrity verified.
-Generating digest...
-Digest generated: bytearray(b'...')
-Verifying signature...
-Signature verified successfully.
-```
-
----
-
-## Key Functions in Detail
+## 🛠️ Key Functions
 
 ### Key Management
-- `create_key_check_existing`:
-   - Retrieves an existing key by name or creates a new RSA key in the DSM.
+#### `create_or_retrieve_key`
+```python
+@staticmethod
+def create_or_retrieve_key(name, key_type, size):
+    """
+    Create or retrieve a key from Fortanix DSM.
 
-### Encryption and Decryption
-- `encrypt`:
-   - Encrypts plaintext using the recipient's public key stored in the DSM.
-- `decrypt`:
-   - Decrypts ciphertext using the recipient's private key stored in the DSM.
+    Parameters:
+    - name (str): Key name to retrieve or create.
+    - key_type (ObjectType): RSA or AES.
+    - size (int): Key size (e.g., 2048 for RSA, 256 for AES).
 
-### Signing and Verifying
-- `sign_digest`:
-   - Signs a plaintext message using the sender's private key stored in the DSM.
-- `verify_digest_signature`:
-   - Verifies a message's signature using the sender's public key retrieved from the DSM.
+    Returns:
+    - str: The key ID.
+    """
+```
+
+### Core Cryptographic Operations
+1. **Encryption**
+   ```python
+   @staticmethod
+   def encrypt(key_id, plaintext, object_type, mode=None, iv=None):
+       """
+       Encrypt plaintext using Fortanix DSM.
+
+       Parameters:
+       - key_id (str): The encryption key ID.
+       - plaintext (str): Data to encrypt.
+       - object_type (ObjectType): RSA or AES.
+       - mode (CipherMode): Optional, for AES (e.g., CBC).
+
+       Returns:
+       - EncryptResult: Encrypted data.
+       """
+   ```
+2. **Decryption**
+   ```python
+   @staticmethod
+   def decrypt(key_id, ciphertext, object_type, mode=None, iv=None):
+       """
+       Decrypt ciphertext using Fortanix DSM.
+
+       Parameters:
+       - key_id (str): The decryption key ID.
+       - ciphertext (bytearray): Encrypted data.
+       - object_type (ObjectType): RSA or AES.
+       - mode (CipherMode): Optional, for AES (e.g., CBC).
+
+       Returns:
+       - str: Decrypted plaintext.
+       """
+   ```
+3. **Signing**
+   ```python
+   @staticmethod
+   def sign(key_id, message):
+       """
+       Sign a message using Fortanix DSM.
+
+       Parameters:
+       - key_id (str): RSA private key ID.
+       - message (str): Message to sign.
+
+       Returns:
+       - bytearray: Digital signature.
+       """
+   ```
+4. **Signature Verification**
+   ```python
+   @staticmethod
+   def verify(key_id, message, signature):
+       """
+       Verify a signature using Fortanix DSM.
+
+       Parameters:
+       - key_id (str): RSA public key ID.
+       - message (str): Original message.
+       - signature (bytearray): Signature to verify.
+
+       Returns:
+       - bool: True if valid, False otherwise.
+       """
+   ```
 
 ---
 
-## Testing the Workflow
+## 💻 Workflows
 
-### Validation Scenarios
-
-1. Successful Workflow:
-   - Verify the decrypted message matches the original plaintext.
-   - Ensure signature verification passes.
-
-2. Tampered Ciphertext:
-   - Modify the ciphertext and observe decryption failure.
-
-3. Invalid Signature:
-   - Modify the signature and observe verification failure.
+### 1️⃣ Basic RSA Workflow
+```python
+SecureWorkflow.basic_rsa_workflow()
+```
+1. **Encrypt message** with receiver's RSA public key.
+2. **Sign message** with sender's RSA private key.
+3. **Decrypt message** with receiver's RSA private key.
+4. **Verify signature** with sender's RSA public key.
 
 ---
 
-## License
+### 2️⃣ Basic AES Workflow
+```python
+SecureWorkflow.basic_aes_workflow()
+```
+1. **Encrypt message** with AES key.
+2. **Decrypt message** with the same AES key.
 
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+---
+
+### 3️⃣ Hybrid RSA-AES Workflow
+```python
+SecureWorkflow.hybrid_rsa_aes_workflow()
+```
+1. **Encrypt message** with AES key.
+2. **Encrypt AES key** with receiver's RSA public key.
+3. **Sign message** with sender's RSA private key.
+4. **Decrypt AES key** with receiver's RSA private key.
+5. **Decrypt message** with AES key.
+6. **Verify signature** with sender's RSA public key.
+
+---
+
+## 🔍 Logging and Debugging
+All workflows include **step-by-step logging** with clear messages and color-coded levels for:
+- Encryption and decryption steps.
+- Key creation and retrieval from DSM.
+- Signature generation and verification.
+
+---
+
+## 🚀 How to Run
+1. Ensure **Fortanix DSM** is set up and accessible.
+2. Install dependencies:
+   ```bash
+   pip install fortanix-sdkms termcolor
+   ```
+3. Execute the script:
+   ```bash
+   python secure_communication.py --api-key <Base64-Encoded-API-Key> --api-endpoint <DSM-Endpoint> --debug
+   ```
+
+---
+
+## 🌟 Future Enhancements
+1. **Support for Additional Algorithms**:
+   - Support for Elliptic Curve Cryptography (ECC).
+   - Use of GCM for authenticated AES encryption.
+2. **Performance Improvements**:
+   - Batch processing for multiple messages.
+3. **Advanced Features**:
+   - Secure key rotation.
+   - Integration with hardware security modules (HSM).
+   - Multi-recipient encryption.
+
+---
+
+## 📜 License
+This project is licensed under the MIT License.
+
