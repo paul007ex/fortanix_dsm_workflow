@@ -1,15 +1,7 @@
 #!/usr/bin/python
 
-from __future__ import print_function
-import argparse
-import base64
-import sdkms
-from sdkms.v1.models.cipher_mode import CipherMode
-from sdkms.v1.models.object_type import ObjectType
-from sdkms.v1.models.digest_algorithm import DigestAlgorithm
-from termcolor import colored
 """
-Secure Communication Using Fortanix DSM 
+Secure Communication Using Fortanix DSM - A Comprehensive Masterclass
 
 Description:
 This script showcases a secure communication protocol between a sender (e.g., John) and a receiver (e.g., Priya) leveraging the Fortanix Data Security Manager (DSM). It demonstrates best practices in cryptography and key management, covering:
@@ -87,7 +79,7 @@ Step 3: Signed Message:
 
 Usage:
 ```bash
-python secure_communication.py --api-key <Base64-Encoded-API-Key> --api-endpoint <DSM-Endpoint> --debug
+python secure_communication.py --api-key <Base64-Encoded-API-Key> --api-endpoint <DSM-Endpoint> --workflow <rsa|aes|combined> --debug
 ```
 Modules Used:
 - `sdkms`: Fortanix SDK for DSM interactions.
@@ -96,6 +88,15 @@ Modules Used:
 - `termcolor`: For color-coded logging.
 
 """
+
+from __future__ import print_function
+import argparse
+import base64
+import sdkms
+from sdkms.v1.models.cipher_mode import CipherMode
+from sdkms.v1.models.object_type import ObjectType
+from sdkms.v1.models.digest_algorithm import DigestAlgorithm
+from termcolor import colored
 
 # Default configuration
 DEFAULT_API_ENDPOINT = "https://apps.smartkey.io"
@@ -271,93 +272,57 @@ class Workflows:
         )
         Logger.log(f"AES Encryption Result: {aes_encryption_result}")
 
-        # Step 2: Encrypt AES key using receiver's RSA public key
+        # Step 2: Encrypt AES key using RSA
         encrypted_aes_key_result = CryptoManager.encrypt(
             key_id=receiver_rsa_key, 
-            plaintext=aes_encryption_result.kid,  # Encrypting AES key material
+            plaintext=aes_encryption_result.kid, 
             object_type=ObjectType.RSA
         )
         Logger.log(f"Encrypted AES Key Result: {encrypted_aes_key_result}")
 
-        # Step 3: Sign plaintext with sender's RSA private key
+        # Step 3: Sign plaintext using RSA
         signature = CryptoManager.sign(sender_rsa_key, plaintext)
         Logger.log(f"Generated Signature: {signature}")
 
-        # Package results
-        encrypted_data = {
+        return {
             'ciphertext': aes_encryption_result.cipher,
             'iv': aes_encryption_result.iv,
             'encrypted_aes_key': encrypted_aes_key_result.cipher,
             'signature': signature
         }
-        return encrypted_data
-
-    @staticmethod
-    def aes_rsa_receiver_workflow(receiver_private_key, sender_public_key, encrypted_data):
-        """Receiver Workflow for AES-RSA Combined Encryption."""
-        Logger.log("Starting AES-RSA receiver workflow.")
-
-        # Step 1: Decrypt AES key using receiver's RSA private key
-        decrypted_aes_key = CryptoManager.decrypt(
-            key_id=receiver_private_key, 
-            ciphertext=encrypted_data['encrypted_aes_key'], 
-            object_type=ObjectType.RSA
-        )
-        Logger.log(f"Decrypted AES Key: {decrypted_aes_key}")
-
-        # Step 2: Decrypt ciphertext using decrypted AES key
-        plaintext_message = CryptoManager.decrypt(
-            key_id=decrypted_aes_key, 
-            ciphertext=encrypted_data['ciphertext'], 
-            object_type=ObjectType.AES, 
-            mode=CipherMode.CBC, 
-            iv=encrypted_data['iv']
-        )
-        Logger.log(f"Decrypted Plaintext Message: {plaintext_message}")
-
-        # Step 3: Verify digital signature
-        is_signature_valid = CryptoManager.verify(
-            key_id=sender_public_key, 
-            message=plaintext_message, 
-            signature=encrypted_data['signature']
-        )
-        Logger.log(f"Signature Verification Result: {is_signature_valid}")
-
-        return plaintext_message, is_signature_valid
 
 # Main Function
 def main():
-    """Main function demonstrating secure communication workflows."""
+    """Entry point for the script."""
     DSMClient.initialize()
 
-    # Create or retrieve keys
-    sender_rsa_key = CryptoManager.create_or_retrieve_key("John's RSA Key", ObjectType.RSA, 2048)
-    receiver_rsa_key = CryptoManager.create_or_retrieve_key("Priya's RSA Key", ObjectType.RSA, 2048)
-    shared_aes_key = CryptoManager.create_or_retrieve_key("Shared AES Key", ObjectType.AES, 256)
+    # Parse workflow type
+    workflow = cl_args.workflow.lower()
+    message = "Hello Priya!"
+    if workflow == "aes":
+        Logger.log("Executing Basic AES Workflow.")      
+        Workflows.basic_aes_encryption(message)
 
-    # Test message
-    plaintext_message = "Hello Priya!"
-    Logger.log(f"Plaintext Message: {plaintext_message}")
+    elif workflow == "rsa":
+        Logger.log("Executing Basic RSA Workflow.")
+        Workflows.basic_rsa_workflow(message)
 
-    # Sender Workflow
-    encrypted_data = Workflows.aes_rsa_combined_workflow(
-        sender_rsa_key, receiver_rsa_key, shared_aes_key, plaintext_message
-    )
-    Logger.log(f"Encrypted Data: {encrypted_data}")
+    elif workflow == "combined":
+        Logger.log("Executing Advanced AES-RSA Combined Workflow.")
+        sender_rsa_key = CryptoManager.create_or_retrieve_key("John's RSA Key", ObjectType.RSA, 2048)
+        receiver_rsa_key = CryptoManager.create_or_retrieve_key("Priya's RSA Key", ObjectType.RSA, 2048)
+        shared_aes_key = CryptoManager.create_or_retrieve_key("Shared AES Key", ObjectType.AES, 256)
+        encrypted_data = Workflows.aes_rsa_combined_workflow(sender_rsa_key, receiver_rsa_key, shared_aes_key, message)
+        Logger.log(f"Encrypted Data: {encrypted_data}")
 
-    # Receiver Workflow
-    decrypted_message, is_signature_valid = Workflows.aes_rsa_receiver_workflow(
-        receiver_private_key=receiver_rsa_key,
-        sender_public_key=sender_rsa_key,
-        encrypted_data=encrypted_data
-    )
-    Logger.log(f"Decrypted Message: {decrypted_message}")
-    Logger.log(f"Signature Verified: {is_signature_valid}")
+    else:
+        Logger.log(f"Invalid workflow type: {workflow}. Please choose 'aes', 'rsa', or 'combined'.", level="ERROR")
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description="Secure Communication Using Fortanix DSM")
     parser.add_argument('--api-key', required=True, help='Base64-encoded API key for DSM access')
     parser.add_argument('--api-endpoint', default=DEFAULT_API_ENDPOINT, help='Fortanix DSM API endpoint')
+    parser.add_argument('--workflow', default="rsa", help="Workflow to execute: aes, rsa, combined (default: rsa)")
     parser.add_argument('--no-verify-ssl', action='store_false', dest='verify_ssl', help='Disable SSL verification')
     global cl_args
     cl_args = parser.parse_args()
