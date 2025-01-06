@@ -4,7 +4,7 @@
 
 ## 📜 Overview
 
-This project demonstrates secure communication workflows using the **Fortanix Data Security Manager (DSM)** for cryptographic operations. It includes **three core workflows**:
+This project demonstrates secure communication workflows using the **Fortanix Data Security Manager (DSM)** for cryptographic operations. It includes **three core workflows**
 
 1. **Basic RSA Workflow**: Asymmetric encryption and signing using RSA keys.
 2. **Basic AES Workflow**: Symmetric encryption and decryption using AES keys.
@@ -17,15 +17,15 @@ The project is designed to **educate newcomers to cryptography** and **Fortanix 
 ## 🧩 Features
 
 ### 🔑 Key Management
-- **RSA Keys**:
+- **RSA Keys**
   - 2048-bit RSA keys for asymmetric encryption and signing.
-- **AES Keys**:
+- **AES Keys**
   - 256-bit AES keys for symmetric encryption.
 
 All keys are securely stored and retrieved from the **Fortanix DSM**.
 
 ### 🔒 Secure Workflows
-1. **Basic RSA Workflow**:
+1. **Basic RSA Workflow**
    - Encrypt plaintext with the receiver's RSA public key.
    - Sign the plaintext with the sender's RSA private key.
    - Decrypt the ciphertext with the receiver's RSA private key.
