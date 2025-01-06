@@ -10,8 +10,6 @@ This project demonstrates secure communication workflows using the Fortanix Data
 2. Basic AES Workflow: Symmetric encryption and decryption using AES keys.
 3. Hybrid RSA-AES Workflow: Combining RSA and AES for advanced secure communication.
 
-The project is designed to educate newcomers to cryptography and Fortanix DSM while showcasing a robust, real-world implementation of secure communication protocols.
-
 ---
 
 ## 🧩 Features
@@ -70,95 +68,29 @@ Decryption reverses this process, with AES key decryption and message signature 
 ```
 
 ---
+🛠 Key Functions
 
-## 🛠️ Key Functions
+🔑 Key Management
+create_or_retrieve_key(name, key_type, size):
+Creates or retrieves cryptographic keys stored in DSM.
+Supported types: AES, RSA.
 
-### Key Management
-#### `create_or_retrieve_key`
-```python
-@staticmethod
-def create_or_retrieve_key(name, key_type, size):
-    """
-    Create or retrieve a key from Fortanix DSM.
+🔒 Encryption
+encrypt(key_id, plaintext, object_type, mode, iv):
+Encrypts plaintext using AES or RSA.
 
-    Parameters:
-    - name (str): Key name to retrieve or create.
-    - key_type (ObjectType): RSA or AES.
-    - size (int): Key size (e.g., 2048 for RSA, 256 for AES).
+🔑 Decryption
+decrypt(key_id, ciphertext, object_type, mode, iv):
+Decrypts ciphertext using AES or RSA.
 
-    Returns:
-    - str: The key ID.
-    """
-```
+✍️ Signing
+sign(key_id, message):
+Signs a message using RSA private key.
 
-### Core Cryptographic Operations
-1. Encryption
-   ```python
-   @staticmethod
-   def encrypt(key_id, plaintext, object_type, mode=None, iv=None):
-       """
-       Encrypt plaintext using Fortanix DSM.
+✅ Verification
+verify(key_id, message, signature):
+Verifies a digital signature using RSA public key.
 
-       Parameters:
-       - key_id (str): The encryption key ID.
-       - plaintext (str): Data to encrypt.
-       - object_type (ObjectType): RSA or AES.
-       - mode (CipherMode): Optional, for AES (e.g., CBC).
-
-       Returns:
-       - EncryptResult: Encrypted data.
-       """
-   ```
-2. Decryption
-   ```python
-   @staticmethod
-   def decrypt(key_id, ciphertext, object_type, mode=None, iv=None):
-       """
-       Decrypt ciphertext using Fortanix DSM.
-
-       Parameters:
-       - key_id (str): The decryption key ID.
-       - ciphertext (bytearray): Encrypted data.
-       - object_type (ObjectType): RSA or AES.
-       - mode (CipherMode): Optional, for AES (e.g., CBC).
-
-       Returns:
-       - str: Decrypted plaintext.
-       """
-   ```
-3. Signing
-   ```python
-   @staticmethod
-   def sign(key_id, message):
-       """
-       Sign a message using Fortanix DSM.
-
-       Parameters:
-       - key_id (str): RSA private key ID.
-       - message (str): Message to sign.
-
-       Returns:
-       - bytearray: Digital signature.
-       """
-   ```
-4. Signature Verification
-   ```python
-   @staticmethod
-   def verify(key_id, message, signature):
-       """
-       Verify a signature using Fortanix DSM.
-
-       Parameters:
-       - key_id (str): RSA public key ID.
-       - message (str): Original message.
-       - signature (bytearray): Signature to verify.
-
-       Returns:
-       - bool: True if valid, False otherwise.
-       """
-   ```
-
----
 
 ## 💻 Workflows
 
