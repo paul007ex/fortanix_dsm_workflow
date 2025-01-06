@@ -55,6 +55,34 @@ All keys are securely stored and retrieved from the Fortanix DSM.
 
 #### Hybrid RSA-AES Workflow
 ```
+Protocol Flow (Advanced AES-RSA Workflow):
++------------------+               +-------------------+
+|   Sender (John)  |               |  Receiver (Priya) |
++------------------+               +-------------------+
+            |                                |
+[Retrieve RSA Key]                  [Retrieve RSA Key]
+[Retrieve AES Key]                               |
+            v                                v
+  [Encrypt Message]  ----------------->  [Decrypt AES Key]
+  [Encrypt AES Key]                       [Decrypt Message]
+  [Sign Message]                         [Verify Signature]
+            |                                |
+            v                                v
+[["Hello Priya"](AES Key)](John's RSA Public Key)   [["Hello Priya"](AES Key)]
+ + [Digest("Hello Priya")](Signed with John's RSA Private Key)]
+
+Encapsulation Example:
+Step 1: Message encrypted with AES key:
+["Hello Priya"](AES Key)
+
+Step 2: AES key encrypted with RSA:
+[["Hello Priya"](AES Key)](John's RSA Public Key)
+
+Step 3: Signed Message:
+[[["Hello Priya"](AES Key)](John's RSA Public Key)] + [Digest("Hello Priya")](Signed with John's RSA Private Key)]
+```
+
+```
 Step 1: Encrypt message with AES key:
 [Message](AES Key)
 
