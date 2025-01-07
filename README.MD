@@ -1,185 +1,192 @@
----
+# Fortanix Secure Communication Script:
 
-# 🔐 Advanced Secure Communication Using Fortanix DSM
+## Overview
+The **Fortanix Secure Communication Script** is a Python application designed to showcase secure communication workflows using the **Fortanix Data Security Manager (DSM)**. This script demonstrates how to leverage modern cryptographic techniques, including AES, RSA, and hybrid workflows, to ensure **confidentiality**, **integrity**, and **authenticity** in message exchanges.
 
-## 📜 Overview
-
-This project demonstrates secure communication workflows using the Fortanix Data Security Manager (DSM) for cryptographic operations. It includes three core workflows
-
-1. Basic RSA Workflow: Asymmetric encryption and signing using RSA keys.
-2. Basic AES Workflow: Symmetric encryption and decryption using AES keys.
-3. Hybrid RSA-AES Workflow: Combining RSA and AES for advanced secure communication.
+Whether you're a beginner in cryptography or a seasoned professional, this guide provides a step-by-step understanding of the script's functionality and how it aligns with cryptographic best practices.
 
 ---
 
-## 🧩 Features
+## Features
+### 1. **Key Management in DSM**
+- **AES Keys**: Symmetric keys used for fast, secure message encryption.
+- **RSA Keys**: Asymmetric keys for secure key exchange and digital signatures.
+- **Dynamic Key Handling**: Automatically retrieves or generates required keys from DSM.
 
-### 🔑 Key Management
-- RSA Keys
-  - 2048-bit RSA keys for asymmetric encryption and signing.
-- AES Keys
-  - 256-bit AES keys for symmetric encryption.
+### 2. **Workflows**
+The script supports three cryptographic workflows:
+1. **AES Workflow**: Encrypts and decrypts messages with a symmetric AES key.
+2. **RSA Workflow**: Secures messages with RSA encryption and verifies them with digital signatures.
+3. **Hybrid AES-RSA Workflow**: Combines AES for efficiency and RSA for secure key exchange and verification.
 
-All keys are securely stored and retrieved from the Fortanix DSM.
+### 3. **Secure Protocol Design**
+The script follows a **sender-receiver model**:
+- The **sender** encrypts the message, signs it, and shares the AES key securely.
+- The **receiver** decrypts the key, verifies the signature, and decrypts the message.
 
-### 🔒 Secure Workflows
-1. Basic RSA Workflow
-   - Encrypt plaintext with the receiver's RSA public key.
-   - Sign the plaintext with the sender's RSA private key.
-   - Decrypt the ciphertext with the receiver's RSA private key.
-   - Verify the signature with the sender's RSA public key.
-
-2. Basic AES Workflow:
-   - Encrypt plaintext with an AES key using CBC mode.
-   - Decrypt ciphertext with the same AES key.
-
-3. Hybrid RSA-AES Workflow:
-   - Encrypt the message with an AES key (for efficiency).
-   - Encrypt the AES key with the receiver's RSA public key (for secure key exchange).
-   - Sign the plaintext with the sender's RSA private key.
-   - Decrypt the AES key and message and verify the signature.
-
-### 📋 Protocol Workflow Visualization
-
-#### Basic RSA Workflow
-```
-[Message](RSA Public Key) → [Encrypted Message](Signed with Sender's RSA Private Key)
-[Encrypted Message](RSA Private Key) → [Decrypted Message](Verified with Sender's RSA Public Key)
-```
-
-#### Basic AES Workflow
-```
-[Message](AES Key) → [Encrypted Message](AES Key)
-[Encrypted Message](AES Key) → [Decrypted Message]
-```
-
-#### Hybrid RSA-AES Workflow
-```
-Protocol Flow (Advanced AES-RSA Workflow):
-+------------------+               +-------------------+
-|   Sender (John)  |               |  Receiver (Priya) |
-+------------------+               +-------------------+
-            |                                |
-[Retrieve RSA Key]                  [Retrieve RSA Key]
-[Retrieve AES Key]                               |
-            v                                v
-  [Encrypt Message]  ----------------->  [Decrypt AES Key]
-  [Encrypt AES Key]                       [Decrypt Message]
-  [Sign Message]                         [Verify Signature]
-            |                                |
-            v                                v
-[["Hello Priya"](AES Key)](John's RSA Public Key)   [["Hello Priya"](AES Key)]
- + [Digest("Hello Priya")](Signed with John's RSA Private Key)]
-
-Encapsulation Example:
-Step 1: Message encrypted with AES key:
-["Hello Priya"](AES Key)
-
-Step 2: AES key encrypted with RSA:
-[["Hello Priya"](AES Key)](John's RSA Public Key)
-
-Step 3: Signed Message:
-[[["Hello Priya"](AES Key)](John's RSA Public Key)] + [Digest("Hello Priya")](Signed with John's RSA Private Key)]
-```
-
-Decryption reverses this process, with AES key decryption and message signature verification.
-
----
-🛠 Key Functions
-
-🔑 Key Management
-```create_or_retrieve_key(name, key_type, size):```
-Creates or retrieves cryptographic keys stored in DSM.
-Supported types: AES, RSA.
-
-🔒 Encryption
-```encrypt(key_id, plaintext, object_type, mode, iv):```
-Encrypts plaintext using AES or RSA.
-
-🔑 Decryption
-```decrypt(key_id, ciphertext, object_type, mode, iv):```
-Decrypts ciphertext using AES or RSA.
-
-✍️ Signing
-```sign(key_id, message):```
-Signs a message using RSA private key.
-
-✅ Verification
-```verify(key_id, message, signature):```
-Verifies a digital signature using RSA public key.
-
-
-## 💻 Workflows
-
-### 1️⃣ Basic RSA Workflow
-```python
-SecureWorkflow.basic_rsa_workflow()
-```
-1. Encrypt message with receiver's RSA public key.
-2. Sign message with sender's RSA private key.
-3. Decrypt message with receiver's RSA private key.
-4. Verify signature with sender's RSA public key.
+### 4. **Comprehensive Logging**
+Detailed, color-coded logs provide step-by-step insights into every operation, making the script easy to debug and understand.
 
 ---
 
-### 2️⃣ Basic AES Workflow
-```python
-SecureWorkflow.basic_aes_workflow()
+## Cryptography Fundamentals
+### 1. **AES Encryption**
+- **Symmetric Encryption**: The same key is used for encryption and decryption.
+- **Block Cipher**: Operates on fixed-size blocks (e.g., 128-bit).
+- **Mode**: CBC (Cipher Block Chaining) mode adds an initialization vector (IV) for enhanced security.
+
+### 2. **RSA Encryption**
+- **Asymmetric Encryption**: Uses a public key for encryption and a private key for decryption.
+- **Digital Signatures**: Ensures data integrity and authenticity by signing messages with a private key and verifying with the corresponding public key.
+
+### 3. **Hybrid Cryptography**
+- **AES + RSA**: Combines the speed of AES with the secure key exchange capabilities of RSA.
+
+---
+
+## Installation
+### Prerequisites
+- Python 3.8 or higher
+- Fortanix DSM SDK
+- Access to a configured Fortanix DSM instance
+
+### Dependencies
+Install the required Python packages:
+```bash
+pip install sdkms termcolor
 ```
-1. Encrypt message with AES key.
-2. Decrypt message with the same AES key.
 
 ---
 
-### 3️⃣ Hybrid RSA-AES Workflow
-```python
-SecureWorkflow.hybrid_rsa_aes_workflow()
+## Usage
+### Command-Line Interface
+Run the script with the following parameters:
+```bash
+python fortanix_secure_comm_v4.py --api-key <API_KEY> --workflow <aes|rsa|combined> --message <message>
 ```
-1. Encrypt message with AES key.
-2. Encrypt AES key with receiver's RSA public key.
-3. Sign message with sender's RSA private key.
-4. Decrypt AES key with receiver's RSA private key.
-5. Decrypt message with AES key.
-6. Verify signature with sender's RSA public key.
+
+#### Arguments
+- `--api-key`: Base64-encoded DSM API key (`<username>:<password>` format).
+- `--workflow`: Specifies the cryptographic workflow to execute:
+  - `aes`: AES-only encryption and decryption.
+  - `rsa`: RSA-based encryption, signing, and verification.
+  - `combined`: Hybrid AES-RSA workflow.
+- `--message`: The plaintext message to encrypt.
 
 ---
 
-## 🔍 Logging and Debugging
-All workflows include step-by-step logging with clear messages and color-coded levels for:
-- Encryption and decryption steps.
-- Key creation and retrieval from DSM.
-- Signature generation and verification.
+## Example
+### Encrypt and Decrypt a Message Using the AES Workflow
+```bash
+python fortanix_secure_comm_v4.py --api-key <your_api_key> --workflow aes --message "Hello Fortanix!"
+```
+
+### Hybrid AES-RSA Workflow
+```bash
+python fortanix_secure_comm_v4.py --api-key <your_api_key> --workflow combined --message "Secure Hello"
+```
 
 ---
 
-## 🚀 How to Run
-1. Ensure Fortanix DSM is set up and accessible.
-2. Install dependencies:
+## Code Structure
+### 1. **DSMClient**
+Handles authentication and interaction with Fortanix DSM:
+- Initializes the client using the provided API key.
+- Configures and authorizes DSM API instances.
+
+### 2. **CryptoManager**
+Performs cryptographic operations:
+- **Key Management**: Retrieves or generates keys in DSM.
+- **Encryption and Decryption**: Secures data using AES or RSA.
+- **Signing and Verification**: Ensures data integrity and authenticity.
+
+### 3. **Workflows**
+Defines pre-built workflows:
+- **AES Workflow**: Demonstrates AES encryption and decryption.
+- **RSA Workflow**: Uses RSA for encryption, signing, and verification.
+- **Hybrid Workflow**: Combines AES and RSA for secure communication.
+
+---
+
+## Protocol Details
+### Advanced AES-RSA Workflow
+#### Steps:
+1. **Sender (John)**:
+   - Encrypts the message using an AES key.
+   - Encrypts the AES key with Priya's RSA public key.
+   - Signs the message using John's RSA private key.
+
+2. **Receiver (Priya)**:
+   - Decrypts the AES key with her RSA private key.
+   - Decrypts the message using the AES key.
+   - Verifies the signature using John's RSA public key.
+
+#### Data Flow:
+```plaintext
+[Message (AES Key)] -> [Encrypted AES Key (RSA)] -> [Signed Message (RSA)]
+```
+
+#### Encapsulation Example:
+```plaintext
+Step 1: ["Hello Priya" (AES Key)]
+Step 2: [["Hello Priya" (AES Key)] (John's RSA Public Key)]
+Step 3: [[["Hello Priya" (AES Key)] (John's RSA Public Key)] + [Digest ("Hello Priya") Signed (John's RSA Private Key)]]
+```
+
+---
+
+## Logging Example
+The script outputs detailed logs for debugging and education:
+```plaintext
+[INFO] Starting the script.
+[INFO] Initializing DSM client.
+[INFO] DSM client configured with the following settings:
+  Host: https://apps.smartkey.io
+  Username: **********
+[INFO] Executing Advanced AES-RSA Combined Workflow.
+[INFO] Encrypting plaintext using AES.
+[INFO] AES Encryption Result: Cipher=********, IV=********
+...
+[INFO] Script execution completed.
+```
+
+---
+
+## Learning Points
+1. **Cryptography in Practice**:
+   - Understand the interplay of symmetric and asymmetric encryption.
+   - Appreciate the importance of secure key management in real-world scenarios.
+
+2. **DSM Integration**:
+   - Learn how to interact with a Hardware Security Module (HSM) like Fortanix DSM.
+   - Securely store and manage cryptographic keys.
+
+3. **Secure Communication**:
+   - Implement end-to-end security for message exchanges.
+   - Use logging to trace operations and debug cryptographic workflows.
+
+---
+
+## Advanced Tips
+1. **Environment Variables**:
+   - Use `FORTANIX_API_KEY` for secure API key handling.
    ```bash
-   pip install sdkms termcolor
+   export FORTANIX_API_KEY="your_api_key"
    ```
-3. Execute the script:
-   ```bash
-   python fortanix_secure_comm.py --api-key <Base64-Encoded-API-Key> --api-endpoint <DSM-Endpoint> 
-   ```
+
+2. **Custom Workflows**:
+   - Extend the `Workflows` class to define custom cryptographic workflows.
+
+3. **Error Handling**:
+   - Use detailed logs and exception handling for robust and secure execution.
 
 ---
 
-## 🌟 Future Enhancements
-1. Support for Additional Algorithms:
-   - Support for Elliptic Curve Cryptography (ECC).
-   - Use of GCM for authenticated AES encryption.
-2. Performance Improvements:
-   - Batch processing for multiple messages.
-3. Advanced Features:
-   - Secure key rotation.
-   - Integration with hardware security modules (HSM).
-   - Multi-recipient encryption.
+## License
+This script is licensed under the **MIT License**. See the LICENSE file for details.
 
 ---
 
-## 📜 License
-This project is licensed under the MIT License.
-
---- 
+## Conclusion
+The **Fortanix Secure Communication Script** is a powerful tool to learn cryptographic principles and integrate them with enterprise-grade security systems like Fortanix DSM. By walking through this script, you’ll not only understand cryptographic fundamentals but also gain practical skills to build secure communication systems.
 
