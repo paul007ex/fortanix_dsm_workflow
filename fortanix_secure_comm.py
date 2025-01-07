@@ -9,7 +9,7 @@ Description:
     confidentiality, integrity, and authenticity of messages.
 
 Usage:
-    python fortanix_secure_comm.py --api-key <API_KEY> --workflow <aes|rsa|combined> --message <message>
+    python fortanix_secure_comm_v4.py --api-key <API_KEY> --workflow <aes|rsa|combined> --message <message>
 
 Author:
     Paul Volosen
@@ -658,7 +658,6 @@ class Workflows:
 
         return decrypted_message, signature_valid
 
-# Main Function
 
 # Main Function
 def main():
@@ -713,33 +712,6 @@ def main():
         Logger.log(f"[Error] An error occurred during execution: {e}", level="ERROR")
     finally:
         Logger.log("[Complete] Script execution completed.")
-
-def main_old():
-    try:
-        """Entry point for the script."""
-        DSMClient.initialize()
-        # Parse workflow type
-        workflow = cl_args.workflow.lower()
-        message = cl_args.message.lower()
-
-        if workflow == "aes":
-            Logger.log("Executing AES Workflow.")      
-            Workflows.basic_aes_encryption(message)
-        elif workflow == "rsa":
-            Logger.log("Executing RSA Workflow.")
-            Workflows.basic_rsa_workflow(message)
-        elif workflow == "combined":
-            Logger.log("Executing Advanced AES-RSA Combined Workflow.")
-            sender_rsa_key = CryptoManager.create_or_retrieve_key("John's RSA Key", ObjectType.RSA, 2048)
-            receiver_rsa_key = CryptoManager.create_or_retrieve_key("Priya's RSA Key", ObjectType.RSA, 2048)
-            shared_aes_key = CryptoManager.create_or_retrieve_key("Shared AES Key", ObjectType.AES, 256)
-            Workflows.aes_rsa_combined_workflow(sender_rsa_key, receiver_rsa_key, shared_aes_key, message)
-        else:
-            Logger.log(f"Invalid workflow type: {workflow}. Please choose 'aes', 'rsa', or 'combined'.", level="ERROR")
-    except Exception as e:
-            Logger.log(f"An error occurred: {e}", level="ERROR")
-    finally:
-        Logger.log("Script execution completed.")
 
 if __name__ == '__main__':
 
