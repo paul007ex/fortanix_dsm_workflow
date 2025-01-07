@@ -368,17 +368,59 @@ class CryptoManager:
         Logger.log(f"Signature verification result: {result.result}")
         return result.result
 
-class CryptoManager_old:
+# Workflows
+# CryptoManager
+class CryptoManager:
+    """
+    CryptoManager
+    ==============
+
+    This class provides utility functions to manage cryptographic operations 
+    using the Fortanix DSM. It includes methods for key management, encryption, 
+    decryption, signing, and signature verification.
+
+    Methods:
+        - create_or_retrieve_key: Creates or retrieves cryptographic keys.
+        - encrypt: Encrypts plaintext using the DSM.
+        - decrypt: Decrypts ciphertext using the DSM.
+        - sign: Signs data using the DSM.
+        - verify: Verifies a signature using the DSM.
+
+    Dependencies:
+        - Fortanix DSM SDK (sdkms)
+        - Logger (custom logging utility)
+
+    """
+
     @staticmethod
     def create_or_retrieve_key(name, key_type, size):
-        """Create or retrieve a key from DSM."""
+        """
+        Create or Retrieve a Cryptographic Key
+        --------------------------------------
+
+        This method checks if a key with the given name exists in the DSM. If found,
+        it retrieves the key. Otherwise, it creates a new key with the specified type
+        and size.
+
+        Parameters:
+            name (str): Name of the key to retrieve or create.
+            key_type (str): Type of the key (e.g., ObjectType.AES or ObjectType.RSA).
+            size (int): Key size (e.g., 256 for AES, 2048 for RSA).
+
+        Returns:
+            str: The key ID of the retrieved or newly created key.
+
+        Logs:
+            - Checks for existing keys.
+            - Logs if the key is found or created.
+        """
         Logger.log(f"Checking if key '{name}' exists.")
         keys = DSMClient.get_instance('sobjects').get_security_objects()
         for key in keys:
             if key.name == name:
                 Logger.log(f"Key '{name}' found with ID: {key.kid}")
                 return key.kid
-        
+
         Logger.log(f"Creating new key: {name}")
         request = sdkms.v1.SobjectRequest(
             name=name, key_size=size, obj_type=key_type
@@ -389,7 +431,26 @@ class CryptoManager_old:
 
     @staticmethod
     def encrypt(key_id, plaintext, object_type, mode=None, iv=None):
-        """Encrypt plaintext using DSM."""
+        """
+        Encrypt Data
+        ------------
+
+        Encrypts plaintext using a specified cryptographic key stored in the DSM.
+
+        Parameters:
+            key_id (str): The ID of the key to use for encryption.
+            plaintext (str): The data to encrypt.
+            object_type (str): The type of encryption algorithm (e.g., ObjectType.AES).
+            mode (str, optional): The encryption mode (e.g., CipherMode.CBC).
+            iv (bytes, optional): The initialization vector (IV) for the encryption.
+
+        Returns:
+            sdkms.v1.EncryptResponse: The encryption result, including ciphertext and metadata.
+
+        Logs:
+            - Encryption start.
+            - Encryption success with ciphertext details.
+        """
         Logger.log("Encrypting data.")
         encrypt_request = sdkms.v1.EncryptRequest(
             alg=object_type, plain=bytearray(plaintext, 'utf-8'), mode=mode, iv=iv
@@ -400,7 +461,26 @@ class CryptoManager_old:
 
     @staticmethod
     def decrypt(key_id, ciphertext, object_type, mode=None, iv=None):
-        """Decrypt ciphertext using DSM."""
+        """
+        Decrypt Data
+        ------------
+
+        Decrypts ciphertext using a specified cryptographic key stored in the DSM.
+
+        Parameters:
+            key_id (str): The ID of the key to use for decryption.
+            ciphertext (bytes): The encrypted data to decrypt.
+            object_type (str): The type of encryption algorithm (e.g., ObjectType.AES).
+            mode (str, optional): The decryption mode (e.g., CipherMode.CBC).
+            iv (bytes, optional): The initialization vector (IV) used during encryption.
+
+        Returns:
+            str: The decrypted plaintext data.
+
+        Logs:
+            - Decryption start.
+            - Decryption success with plaintext details.
+        """
         Logger.log("Decrypting data.")
         decrypt_request = sdkms.v1.DecryptRequest(
             alg=object_type, cipher=ciphertext, mode=mode, iv=iv
@@ -411,7 +491,23 @@ class CryptoManager_old:
 
     @staticmethod
     def sign(key_id, message):
-        """Sign a message using DSM."""
+        """
+        Sign Data
+        ---------
+
+        Generates a digital signature for the given message using a specified key.
+
+        Parameters:
+            key_id (str): The ID of the key to use for signing.
+            message (str): The data to sign.
+
+        Returns:
+            bytes: The generated digital signature.
+
+        Logs:
+            - Signing start.
+            - Signing success with signature details.
+        """
         Logger.log("Signing data.")
         digest_request = sdkms.v1.DigestRequest(
             alg=DigestAlgorithm.SHA256, data=bytearray(message, 'utf-8')
@@ -425,7 +521,24 @@ class CryptoManager_old:
 
     @staticmethod
     def verify(key_id, message, signature):
-        """Verify a signature using DSM."""
+        """
+        Verify a Signature
+        ------------------
+
+        Verifies the digital signature of a message using a specified key.
+
+        Parameters:
+            key_id (str): The ID of the key to use for verification.
+            message (str): The original message.
+            signature (bytes): The digital signature to verify.
+
+        Returns:
+            bool: True if the signature is valid; otherwise, False.
+
+        Logs:
+            - Verification start.
+            - Verification result.
+        """
         Logger.log("Verifying signature.")
         digest_request = sdkms.v1.DigestRequest(
             alg=DigestAlgorithm.SHA256, data=bytearray(message, 'utf-8')
@@ -439,8 +552,218 @@ class CryptoManager_old:
         Logger.log(f"Signature verification result: {result.result}")
         return result.result
 
-# Workflows
+
 class Workflows:
+    """
+    Workflows
+    ==========
+
+    This class provides pre-defined cryptographic workflows for secure communication
+    using the Fortanix DSM. The workflows utilize AES, RSA, or a combination of both
+    for encryption, decryption, signing, and signature verification.
+
+    Methods:
+        - basic_aes_encryption: Simple AES encryption and decryption workflow.
+        - basic_rsa_workflow: RSA-based encryption and signature verification workflow.
+        - aes_rsa_combined_workflow: Hybrid workflow combining AES and RSA operations.
+
+    Dependencies:
+        - CryptoManager: For cryptographic operations.
+        - Logger: For detailed logging.
+
+    """
+
+    @staticmethod
+    def basic_aes_encryption(message):
+        """
+        Basic AES Encryption Workflow
+        -----------------------------
+
+        Demonstrates a simple AES encryption and decryption workflow.
+
+        Steps:
+        1. Retrieve or create a shared AES key from the DSM.
+        2. Encrypt the plaintext message using AES in CBC mode.
+        3. Decrypt the ciphertext using the same AES key and the generated IV.
+
+        Parameters:
+            message (str): The plaintext message to be encrypted and decrypted.
+
+        Returns:
+            None
+
+        Logs:
+            - Logs each step of the AES workflow.
+        """
+        Logger.log("[Step 1] Starting Basic AES Encryption Workflow.")
+
+        # Step 1: Retrieve or create the AES key
+        Logger.log("[Step 2] Retrieving or creating the shared AES key.")
+        aes_key = CryptoManager.create_or_retrieve_key("Shared AES Key", ObjectType.AES, 256)
+        Logger.log(f"[Step 3] Shared AES Key ID: {aes_key}")
+
+        # Step 2: Encrypt the message using AES in CBC mode
+        Logger.log("[Step 4] Encrypting the plaintext message using AES in CBC mode.")
+        encrypted_result = CryptoManager.encrypt(
+            key_id=aes_key,
+            plaintext=message,
+            object_type=ObjectType.AES,
+            mode=CipherMode.CBC
+        )
+        Logger.log(f"[Step 5] AES Encryption Result: Ciphertext: {encrypted_result.cipher}, IV: {encrypted_result.iv}")
+
+        # Step 3: Decrypt the ciphertext using the AES key and IV
+        Logger.log("[Step 6] Decrypting the ciphertext back to plaintext.")
+        decrypt_result = CryptoManager.decrypt(
+            key_id=aes_key,
+            ciphertext=encrypted_result.cipher,
+            object_type=ObjectType.AES,
+            mode=CipherMode.CBC,
+            iv=encrypted_result.iv
+        )
+        Logger.log(f"[Step 7] AES Decryption Result: Plaintext: {decrypt_result}")
+
+        Logger.log("[Complete] Basic AES Encryption Workflow completed successfully.")
+
+    @staticmethod
+    def basic_rsa_workflow(message):
+        """
+        Basic RSA Encryption and Signature Workflow
+        ------------------------------------------
+
+        Demonstrates a complete RSA-based cryptographic workflow.
+
+        Steps:
+        1. Retrieve or create the sender's RSA key.
+        2. Retrieve or create the receiver's RSA key.
+        3. Encrypt the plaintext message with the receiver's public RSA key.
+        4. Sign the plaintext message with the sender's private RSA key.
+        5. Decrypt the ciphertext using the receiver's private RSA key.
+        6. Verify the signature using the sender's public RSA key.
+
+        Parameters:
+            message (str): The plaintext message to be encrypted and signed.
+
+        Returns:
+            tuple:
+                decrypted_data (str): The decrypted message.
+                signature_valid (bool): Whether the signature verification succeeded.
+
+        Logs:
+            - Logs each step of the RSA workflow.
+        """
+        Logger.log("[Step 1] Starting Basic RSA Workflow.")
+
+        # Step 1: Retrieve or create the sender's RSA key
+        sender_rsa_key = CryptoManager.create_or_retrieve_key("John's RSA Key", ObjectType.RSA, 2048)
+        Logger.log("[Step 2] Sender's RSA Key created or retrieved.")
+
+        # Step 2: Retrieve or create the receiver's RSA key
+        receiver_rsa_key = CryptoManager.create_or_retrieve_key("Priya's RSA Key", ObjectType.RSA, 2048)
+        Logger.log("[Step 3] Receiver's RSA Key created or retrieved.")
+
+        # Step 3: Encrypt the plaintext message with the receiver's public RSA key
+        encrypted_result = CryptoManager.encrypt(receiver_rsa_key, message, ObjectType.RSA)
+        Logger.log(f"[Step 4] RSA Encryption Result: Cipher={encrypted_result.cipher}")
+
+        # Step 4: Sign the plaintext message with the sender's private RSA key
+        signed_data = CryptoManager.sign(sender_rsa_key, message)
+        Logger.log(f"[Step 5] Signed Data: {signed_data}")
+
+        # Step 5: Decrypt the ciphertext using the receiver's private RSA key
+        decrypted_data = CryptoManager.decrypt(receiver_rsa_key, encrypted_result.cipher, ObjectType.RSA)
+        Logger.log(f"[Step 6] Decrypted Data: {decrypted_data}")
+
+        # Step 6: Verify the signature using the sender's public RSA key
+        signature_valid = CryptoManager.verify(sender_rsa_key, decrypted_data, signed_data)
+        Logger.log(f"[Step 7] Signature Verification Result: {signature_valid}")
+
+        return decrypted_data, signature_valid
+
+    @staticmethod
+    def aes_rsa_combined_workflow(sender_rsa_key, receiver_rsa_key, shared_aes_key, plaintext):
+        """
+        Combined AES and RSA Workflow
+        -----------------------------
+
+        Demonstrates a hybrid cryptographic workflow that combines AES and RSA.
+
+        Steps:
+        1. Encrypt the plaintext using AES.
+        2. Encrypt the AES key with the receiver's public RSA key.
+        3. Sign the plaintext with the sender's private RSA key.
+        4. Decrypt the AES key with the receiver's private RSA key.
+        5. Decrypt the ciphertext using the decrypted AES key.
+        6. Verify the signature using the sender's public RSA key.
+
+        Parameters:
+            sender_rsa_key (str): The sender's RSA key ID.
+            receiver_rsa_key (str): The receiver's RSA key ID.
+            shared_aes_key (str): The shared AES key ID.
+            plaintext (str): The message to be secured.
+
+        Returns:
+            tuple:
+                decrypted_message (str): The decrypted plaintext.
+                signature_valid (bool): Whether the signature verification succeeded.
+
+        Logs:
+            - Logs each step of the combined AES-RSA workflow.
+        """
+        Logger.log("[Step 1] Starting AES-RSA Combined Workflow.")
+
+        # Step 1: Encrypt the plaintext using AES
+        aes_encryption_result = CryptoManager.encrypt(
+            key_id=shared_aes_key,
+            plaintext=plaintext,
+            object_type=ObjectType.AES,
+            mode=CipherMode.CBC
+        )
+        Logger.log(f"[Step 2] AES Encryption Result: Cipher={aes_encryption_result.cipher}, IV: {aes_encryption_result.iv}")
+
+        # Step 2: Encrypt the AES key with the receiver's RSA public key
+        encrypted_aes_key_result = CryptoManager.encrypt(
+            key_id=receiver_rsa_key,
+            plaintext=aes_encryption_result.kid,
+            object_type=ObjectType.RSA
+        )
+        Logger.log(f"[Step 3] Encrypted AES Key Result: Cipher={encrypted_aes_key_result.cipher}")
+
+        # Step 3: Sign the plaintext with the sender's private RSA key
+        signed_data = CryptoManager.sign(sender_rsa_key, plaintext)
+        Logger.log(f"[Step 4] Generated Signature: {signed_data}")
+
+        # Step 4: Decrypt the AES key with the receiver's private RSA key
+        decrypted_aes_key = CryptoManager.decrypt(
+            receiver_rsa_key,
+            encrypted_aes_key_result.cipher,
+            ObjectType.RSA
+        )
+        Logger.log(f"[Step 5] Decrypted AES Key: {decrypted_aes_key}")
+
+        # Step 5: Decrypt the ciphertext using the decrypted AES key
+        decrypted_message = CryptoManager.decrypt(
+            decrypted_aes_key,
+            aes_encryption_result.cipher,
+            ObjectType.AES,
+            CipherMode.CBC,
+            aes_encryption_result.iv
+        )
+        Logger.log(f"[Step 6] Decrypted Message: {decrypted_message}")
+
+        # Step 6: Verify the signature using the sender's public RSA key
+        signature_valid = CryptoManager.verify(
+            sender_rsa_key,
+            decrypted_message,
+            signed_data
+        )
+        Logger.log(f"[Step 7] Signature Verification Result: {signature_valid}")
+
+        Logger.log("[Step 8] AES-RSA Combined Workflow completed successfully.")
+
+        return decrypted_message, signature_valid
+
+class Workflows_old:
     @staticmethod
     def basic_aes_encryption(message):
         """
