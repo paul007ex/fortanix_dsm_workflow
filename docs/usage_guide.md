@@ -35,7 +35,7 @@ The Fortanix Secure Communication Script is a cutting-edge Python-based tool tha
 ### 🛠️ Setup
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/fortanix-secure-comm-example.git
+git clone https://github.com/paul007ex/fortanix_dsm_workflow.git
 
 # Install dependencies
 pip install sdkms termcolor
@@ -45,12 +45,12 @@ pip install sdkms termcolor
 
 ### 🔒 AES Workflow
 ```bash
-python fortanix_secure_comm_v4.py --workflow aes --message "Top Secret Message! 🤫"
+python fortanix_dsm_workflow.py --workflow aes --message "Top Secret Message! 🤫"
 ```
 
 ### 🌐 RSA Workflow
 ```bash
-python fortanix_secure_comm_v4.py --workflow rsa --message "Secure Communication Activated! 🕵️"
+python fortanix_dsm_workflow.py --workflow rsa --message "Secure Communication Activated! 🕵️"
 ```
 
 ### 🚀 Combined Workflow
@@ -94,6 +94,4 @@ Passionate about security? Contributions are welcome! 🌈
 
 Happy Secure Coding! 🚀🔐
 
-Citations:
-[1] https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/9337340/029e2c7b-e60f-458a-89a0-e36cc0604252/paste.txt
-[2] https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/9337340/ddcf9579-d43a-463a-8e52-852d8a650d4b/fortanix_secure_comm_v4.py
+
