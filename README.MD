@@ -102,6 +102,49 @@ Combines the strengths of AES and RSA:
    - Verifies the signature using the sender's RSA public key.
 
 ---
+## How It Works
+
+This project demonstrates secure communication workflows using **Fortanix DSM**, implementing cryptographic best practices for **confidentiality**, **integrity**, and **authenticity** of messages.
+
+### Protocol Overview
+The following steps detail the secure communication protocol used in this project:
+
+1. **Initialization:**  
+   - Parse API credentials and workflow type.  
+   - Authenticate with the Fortanix DSM.  
+   - Retrieve or create cryptographic keys (AES and RSA).
+
+2. **Sender Workflow:**  
+   - Encrypt the message using AES for fast and efficient encryption.  
+   - Encrypt the AES key using the receiver's RSA public key for secure key exchange.  
+   - Sign the original plaintext message using the sender's RSA private key for integrity.
+
+3. **Receiver Workflow:**  
+   - Decrypt the AES key using the receiver's RSA private key.  
+   - Decrypt the ciphertext using the decrypted AES key to retrieve the plaintext.  
+   - Verify the sender's signature using their public RSA key.
+
+---
+
+### Protocol Wireframe: Data Flow Visualization
+
+Below is a wireframe to illustrate the data flow between **Sender** (John) and **Receiver** (Priya) during the combined AES-RSA workflow:
+
+```plaintext
++------------------+               +-------------------+
+|   Sender (John)  |               |  Receiver (Priya) |
++------------------+               +-------------------+
+            |                                |
+[Retrieve RSA Key]                  [Retrieve RSA Key]
+[Retrieve AES Key]                               |
+            v                                v
+  [Encrypt Message]  ----------------->  [Decrypt AES Key]
+  [Encrypt AES Key]                       [Decrypt Message]
+  [Sign Message]                         [Verify Signature]
+            |                                |
+            v                                v
+["Hello Priya"(AES Key)](John's RSA Public Key)   ["Hello Priya"(AES Key)]
+ + [Digest("Hello Priya")](Signed with John's RSA Private Key)
 
 ### Encapsulation Example 🗳️
 #### **Advanced AES-RSA Workflow**:
