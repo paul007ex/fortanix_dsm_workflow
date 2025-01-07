@@ -179,7 +179,7 @@ pip install sdkms termcolor
 ## Usage 🚀
 Run the script using the following command:
 ```bash
-python fortanix_secure_comm_v4.py --api-key <API_KEY> --workflow <aes|rsa|combined> --message <message>
+python fortanix_dsm_workflowpy --api-key <API_KEY> --workflow <aes|rsa|combined> --message <message>
 ```
 
 #### Example Commands
