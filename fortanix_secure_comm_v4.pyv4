@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
- - Secure Communication Using Fortanix DSM -
+- Secure Communication Using Fortanix DSM -
 
 Description:
 This script showcases a secure communication protocol between a sender (e.g., John) and a receiver (e.g., Priya) leveraging the Fortanix Data Security Manager (DSM). It demonstrates best practices in cryptography and key management, covering:
@@ -51,7 +51,7 @@ Use Cases:
 3. **Advanced AES-RSA Workflow**:
    - Combine AES for message encryption and RSA for key exchange.
 
-Protocol Flow (Advanced AES-RSA Workflow):
+Protocol Flow (Example: Advanced AES-RSA Workflow):
 +------------------+               +-------------------+
 |   Sender (John)  |               |  Receiver (Priya) |
 +------------------+               +-------------------+
@@ -426,7 +426,6 @@ class Workflows:
 
 # Main Function
 def main():
-
     try:
         """Entry point for the script."""
         DSMClient.initialize()
@@ -452,7 +451,6 @@ def main():
             Logger.log(f"An error occurred: {e}", level="ERROR")
     finally:
         Logger.log("Script execution completed.")
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Secure Communication Using Fortanix DSM")
