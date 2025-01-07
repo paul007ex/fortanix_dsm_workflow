@@ -1,11 +1,11 @@
 
-# Fortanix Secure Communication
+# Fortanix DSM Workflow
 💬 **Author:** Paul Volosen  
 🔗 [LinkedIn](https://linkedin.com/in/paul-volosen) | ✉️ [Email](mailto:paul007ex@gmail.com)  
 
 
 ## Introduction 📘
-The **Fortanix Secure Communication Script** is a Python-based demonstration of secure communication workflows powered by the **Fortanix Data Security Manager (DSM)**. This script showcases the application of **Advanced Encryption Standard (AES)**, **Rivest-Shamir-Adleman (RSA)**, and their hybrid use in **combined encryption workflows** to achieve:
+The **Fortanix DSM Workflow** is a Python-based demonstration of secure communication workflows powered by the **Fortanix Data Security Manager (DSM)**. This script showcases the application of **Advanced Encryption Standard (AES)**, **Rivest-Shamir-Adleman (RSA)**, and their hybrid use in **combined encryption workflows** to achieve:
 
 - **Confidentiality**: Ensuring the message remains private. 🔒
 - **Integrity**: Guaranteeing the message is unaltered. ✅
