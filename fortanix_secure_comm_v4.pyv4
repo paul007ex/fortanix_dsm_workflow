@@ -119,6 +119,7 @@ Modules Used:
 """
 
 from __future__ import print_function
+import os
 import argparse
 import base64
 import sdkms
@@ -128,7 +129,10 @@ from sdkms.v1.models.digest_algorithm import DigestAlgorithm
 from termcolor import colored
 
 # Default configuration
+
 DEFAULT_API_ENDPOINT = "https://apps.smartkey.io"
+  
+
 DEBUG = False
 
 # Global variables
@@ -655,7 +659,62 @@ class Workflows:
         return decrypted_message, signature_valid
 
 # Main Function
+
+# Main Function
 def main():
+    """
+    Main Function
+    --------------
+
+    Entry point for the Fortanix Secure Communication Script. This function:
+    1. Initializes the DSM client.
+    2. Parses the workflow type from command-line arguments.
+    3. Executes the appropriate cryptographic workflow based on user input.
+
+    Workflows:
+        - AES Workflow: Symmetric encryption and decryption using AES.
+        - RSA Workflow: Asymmetric encryption, signing, and verification using RSA.
+        - Combined Workflow: Hybrid approach combining AES and RSA.
+
+    Logs:
+        - Detailed logs for each step of the workflow.
+        - Errors encountered during execution.
+
+    Returns:
+        None
+    """
+    try:
+        Logger.log("[Step 1] Starting the script.")
+
+        # Step 1: Initialize DSM Client
+        DSMClient.initialize()
+
+        # Step 2: Parse workflow type
+        workflow = cl_args.workflow.lower()
+        message = cl_args.message.lower()
+        Logger.log(f"[Step 2] Workflow type parsed: {workflow}.")
+
+        # Step 3: Execute the selected workflow
+        if workflow == "aes":
+            Logger.log("[Step 3] Executing AES Workflow.")
+            Workflows.basic_aes_encryption(message)
+        elif workflow == "rsa":
+            Logger.log("[Step 3] Executing RSA Workflow.")
+            Workflows.basic_rsa_workflow(message)
+        elif workflow == "combined":
+            Logger.log("[Step 3] Executing Advanced AES-RSA Combined Workflow.")
+            sender_rsa_key = CryptoManager.create_or_retrieve_key("John's RSA Key", ObjectType.RSA, 2048)
+            receiver_rsa_key = CryptoManager.create_or_retrieve_key("Priya's RSA Key", ObjectType.RSA, 2048)
+            shared_aes_key = CryptoManager.create_or_retrieve_key("Shared AES Key", ObjectType.AES, 256)
+            Workflows.aes_rsa_combined_workflow(sender_rsa_key, receiver_rsa_key, shared_aes_key, message)
+        else:
+            Logger.log(f"[Step 3] Invalid workflow type: {workflow}. Please choose 'aes', 'rsa', or 'combined'.", level="ERROR")
+    except Exception as e:
+        Logger.log(f"[Error] An error occurred during execution: {e}", level="ERROR")
+    finally:
+        Logger.log("[Complete] Script execution completed.")
+
+def main_old():
     try:
         """Entry point for the script."""
         DSMClient.initialize()
@@ -683,12 +742,21 @@ def main():
         Logger.log("Script execution completed.")
 
 if __name__ == '__main__':
+    import argparse
+
+    # Define the argument parser
     parser = argparse.ArgumentParser(description="Secure Communication Using Fortanix DSM")
     parser.add_argument('--api-key', required=True, help='Base64-encoded API key for DSM access')
     parser.add_argument('--api-endpoint', default=DEFAULT_API_ENDPOINT, help='Fortanix DSM API endpoint')
     parser.add_argument('--workflow', default="rsa", help="Workflow to execute: aes, rsa, combined (default: rsa)")
     parser.add_argument('--message', default="Hello Priya!", help="Plaintext message to encrypt. Default 'Hello Priya'")
-    global cl_args
+
+    # Parse the arguments
     cl_args = parser.parse_args()
 
+    # Environment variable fallback for API key
+    import os
+    cl_args.api_key = os.getenv("FORTANIX_API_KEY", cl_args.api_key)
+
+    # Call the main function
     main()
