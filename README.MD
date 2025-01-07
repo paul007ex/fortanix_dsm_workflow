@@ -1,4 +1,3 @@
-# Fortanix Secure Communication Script: 🌟🔐
 
 # Fortanix Secure Communication
 💬 **Author:** Paul Volosen  
