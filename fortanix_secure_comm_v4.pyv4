@@ -742,7 +742,6 @@ def main_old():
         Logger.log("Script execution completed.")
 
 if __name__ == '__main__':
-    import argparse
 
     # Define the argument parser
     parser = argparse.ArgumentParser(description="Secure Communication Using Fortanix DSM")
@@ -755,7 +754,7 @@ if __name__ == '__main__':
     cl_args = parser.parse_args()
 
     # Environment variable fallback for API key
-    import os
+
     cl_args.api_key = os.getenv("FORTANIX_API_KEY", cl_args.api_key)
 
     # Call the main function
