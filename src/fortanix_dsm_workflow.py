@@ -717,7 +717,7 @@ if __name__ == '__main__':
 
     # Define the argument parser
     parser = argparse.ArgumentParser(description="Secure Communication Using Fortanix DSM")
-    parser.add_argument('--api-key', required=True, help='Base64-encoded API key for DSM access')
+    parser.add_argument('--api-key', required=False, help='Base64-encoded API key for DSM access')
     parser.add_argument('--api-endpoint', default=DEFAULT_API_ENDPOINT, help='Fortanix DSM API endpoint')
     parser.add_argument('--workflow', default="rsa", help="Workflow to execute: aes, rsa, combined (default: rsa)")
     parser.add_argument('--message', default="Hello Priya!", help="Plaintext message to encrypt. Default 'Hello Priya'")
@@ -728,6 +728,7 @@ if __name__ == '__main__':
     # Environment variable fallback for API key
 
     cl_args.api_key = os.getenv("FORTANIX_API_KEY", cl_args.api_key)
+    Logger.log(f"Using API key from environment: {os.getenv('FORTANIX_API_KEY')}", level="INFO")
 
     # Call the main function
     main()
