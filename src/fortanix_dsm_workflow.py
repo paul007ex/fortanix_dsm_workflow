@@ -1,6 +1,6 @@
 #!/usr/bin/python
 """
-Fortanix Secure Communication Script
+Fortanix Secure DSM Workflow
 ====================================
 
 Description:
@@ -716,7 +716,7 @@ def main():
 if __name__ == '__main__':
 
     # Define the argument parser
-    parser = argparse.ArgumentParser(description="Secure Communication Using Fortanix DSM")
+    parser = argparse.ArgumentParser(description="Sample workflows demonstrating secure cryptographic operations using Fortanix DSM")
     parser.add_argument('--api-key', required=False, help='Base64-encoded API key for DSM access')
     parser.add_argument('--api-endpoint', default=DEFAULT_API_ENDPOINT, help='Fortanix DSM API endpoint')
     parser.add_argument('--workflow', default="rsa", help="Workflow to execute: aes, rsa, combined (default: rsa)")
