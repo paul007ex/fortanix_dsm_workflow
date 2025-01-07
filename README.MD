@@ -185,15 +185,15 @@ python fortanix_secure_comm_v4.py --api-key <API_KEY> --workflow <aes|rsa|combin
 #### Example Commands
 1. **AES Workflow**:
    ```bash
-   python fortanix_secure_comm_v4.py --api-key <API_KEY> --workflow aes --message "Hello AES!"
+   python fortanix_dsm_workflow.py --api-key <API_KEY> --workflow aes --message "Hello AES!"
    ```
 2. **RSA Workflow**:
    ```bash
-   python fortanix_secure_comm_v4.py --api-key <API_KEY> --workflow rsa --message "Hello RSA!"
+   python fortanix_dsm_workflow.py --api-key <API_KEY> --workflow rsa --message "Hello RSA!"
    ```
 3. **Combined Workflow**:
    ```bash
-   python fortanix_secure_comm_v4.py --api-key <API_KEY> --workflow combined --message "Secure Hello!"
+   python fortanix_dsm_workflow.py --api-key <API_KEY> --workflow combined --message "Secure Hello!"
    ```
 
 ---
