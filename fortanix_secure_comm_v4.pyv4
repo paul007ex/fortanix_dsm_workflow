@@ -1,54 +1,83 @@
 #!/usr/bin/python
-
 """
-- Secure Communication Using Fortanix DSM -
+Fortanix Secure Communication Script
+====================================
 
 Description:
-This script showcases a secure communication protocol between a sender (e.g., John) and a receiver (e.g., Priya) leveraging the Fortanix Data Security Manager (DSM). It demonstrates best practices in cryptography and key management, covering:
+    This script demonstrates secure communication workflows using Fortanix DSM. 
+    It supports AES encryption, RSA encryption, and a combined AES-RSA workflow to ensure 
+    confidentiality, integrity, and authenticity of messages.
 
-1. **Key Management in DSM**:
-   - Creation and retrieval of cryptographic keys (AES and RSA) stored in the DSM.
+Usage:
+    python fortanix_secure_comm_v4.py --api-key <API_KEY> --workflow <aes|rsa|combined> --message <message>
+
+Author:
+    Paul Volosen
+    paul007ex@mgmail.com
+
+Version:
+    1.0.0
+
+Date:
+    2026-01-18
+
+License:
+    This script is licensed under the MIT License.
+    See the LICENSE file for details.
+
+Dependencies:
+    - argparse (Standard Library)
+    - Fortanix DSM SDK (Install via pip: `pip install fortanix-dsm-sdk`)
+    - Python 3.8 or higher
+
+Notes:
+    - Ensure that Fortanix DSM is properly configured with API access.
+    - Verify that the required keys are created in DSM prior to execution.
+
+Key Features:
+1. Key Management in DSM:
+   - Creation and retrieval of cryptographic keys (AES and RSA) securely stored in the DSM.
    - Secure handling of symmetric (AES) and asymmetric (RSA) keys.
 
-2. **Data Security**:
+2. Data Security:
    - AES encryption for message confidentiality.
    - RSA encryption for securely transmitting the AES key.
    - Digital signatures for message authenticity and integrity.
 
-3. **Protocol Workflow**:
+3. Protocol Workflow:
    - Sender encrypts the message using AES and encrypts the AES key with RSA.
    - The message is signed using the sender's private RSA key.
    - Receiver decrypts the AES key using RSA and the message using AES.
    - Receiver verifies the signature using the sender's public RSA key.
 
 Workflow Details:
-1. **Initialization**:
+1. Initialization:
    - Parse command-line arguments for DSM API configuration.
    - Authenticate with the DSM and initialize cryptographic clients.
    - Create or retrieve RSA and AES keys from DSM.
 
-2. **Sender Workflow**:
+2. Sender Workflow:
    - Encrypt the plaintext message using AES.
    - Encrypt the AES key using the receiver's RSA public key.
    - Sign the message using the sender's RSA private key.
 
-3. **Receiver Workflow**:
+3. Receiver Workflow:
    - Decrypt the AES key using the receiver's RSA private key.
    - Decrypt the ciphertext using the AES key.
    - Verify the message's signature using the sender's RSA public key.
 
-4. **Validation**:
+4. Validation:
    - Ensure the decrypted message matches the original plaintext.
    - Confirm the signature verification result.
 
 Use Cases:
-1. **Basic AES Workflow**:
+1. Basic AES Workflow:
    - Encrypt and decrypt a message using AES.
 
-2. **Basic RSA Workflow**:
+2. Basic RSA Workflow:
    - Encrypt a message using RSA and verify its integrity with a digital signature.
 
-3. **Advanced AES-RSA Workflow**:
+3. Advanced AES-RSA Workflow:
    - Combine AES for message encryption and RSA for key exchange.
 
 Protocol Flow (Example: Advanced AES-RSA Workflow):
@@ -64,29 +93,29 @@ Protocol Flow (Example: Advanced AES-RSA Workflow):
   [Sign Message]                         [Verify Signature]
             |                                |
             v                                v
-[["Hello Priya"](AES Key)](John's RSA Public Key)   [["Hello Priya"](AES Key)]
- + [Digest("Hello Priya")](Signed with John's RSA Private Key)]
+["Hello Priya"(AES Key)](John's RSA Public Key)   ["Hello Priya"(AES Key)]
+ + [Digest("Hello Priya")](Signed with John's RSA Private Key)
 
 Encapsulation Example:
 Step 1: Message encrypted with AES key:
-["Hello Priya"](AES Key)
+["Hello Priya"(AES Key)]
 
 Step 2: AES key encrypted with RSA:
-[["Hello Priya"](AES Key)](John's RSA Public Key)
+[["Hello Priya"(AES Key)](John's RSA Public Key)]
 
 Step 3: Signed Message:
-[[["Hello Priya"](AES Key)](John's RSA Public Key)] + [Digest("Hello Priya")](Signed with John's RSA Private Key)]
+[[["Hello Priya"(AES Key)](John's RSA Public Key)] + [Digest("Hello Priya")](Signed with John's RSA Private Key)]
 
 Usage:
 ```bash
-python secure_communication.py --api-key <Base64-Encoded-API-Key> --api-endpoint <DSM-Endpoint> --workflow <rsa|aes|combined> --debug
+python fortanix_secure_comm_v4.py --api-key <Base64-Encoded-API-Key> --api-endpoint <DSM-Endpoint> --workflow <rsa|aes|combined> --debug
 ```
+
 Modules Used:
 - `sdkms`: Fortanix SDK for DSM interactions.
 - `argparse`: Parsing command-line arguments.
 - `base64`: Encoding and decoding keys.
 - `termcolor`: For color-coded logging.
-
 """
 
 from __future__ import print_function
