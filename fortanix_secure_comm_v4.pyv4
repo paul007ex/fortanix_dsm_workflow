@@ -146,38 +146,116 @@ class Logger:
         }
         print(f"[{level}] {colored(message, color_map.get(level.upper(), 'white'))}")
 
-# DSM Client Initialization
 class DSMClient:
+    """
+    DSMClient
+    ==========
+
+    This class provides utilities for interacting with the Fortanix DSM API. It includes methods
+    to initialize the DSM client and retrieve specific API instances for cryptographic operations.
+
+    Methods:
+        - initialize: Authenticates with the DSM and sets up API instances.
+        - get_instance: Retrieves the API instance for a given functionality (e.g., encryption, signing).
+
+    Dependencies:
+        - Fortanix DSM SDK (sdkms)
+        - Logger: For detailed logging.
+
+    """
+
     @staticmethod
     def initialize():
-        """Initialize the Fortanix DSM client."""
+        """
+        Initialize the Fortanix DSM Client
+        ---------------------------------
+
+        This method authenticates with the Fortanix DSM using the API key provided via command-line arguments.
+        It sets up API instances for cryptographic operations such as encryption, signing, and key management.
+
+        Logs:
+            - Successful initialization.
+            - Configuration details in a structured format.
+            - Errors during configuration or authentication.
+        """
+        Logger.log("[Step 1] Initializing the DSM client.")
+
         global api_instances
-        api_key = base64.b64decode(cl_args.api_key).decode('ascii')
-        username, password = api_key.split(':')
+        try:
+            # Step 1: Decode the API key
+            api_key = base64.b64decode(cl_args.api_key).decode('ascii')
+            username, password = api_key.split(':')
+            Logger.log("[Step 2] API key decoded successfully.")
 
-        config = sdkms.v1.configuration.Configuration()
-        config.username = username
-        config.password = password
-        config.host = cl_args.api_endpoint
+            # Step 2: Configure DSM client
+            config = sdkms.v1.configuration.Configuration()
+            config.username = username
+            config.password = password
+            config.host = cl_args.api_endpoint
 
-        client = sdkms.v1.ApiClient(configuration=config)
-        auth_instance = sdkms.v1.AuthenticationApi(api_client=client)
-        auth = auth_instance.authorize()
-        
-        config.api_key['Authorization'] = auth.access_token
-        config.api_key_prefix['Authorization'] = 'Bearer'
+            # Pretty print the configuration
+            config_attributes = vars(config)
+            formatted_config = "\n".join(
+                f"{key}: {value}" for key, value in config_attributes.items() if value is not None
+            )
+            Logger.log(f"[Step 3] DSM client configured with the following settings:\n{formatted_config}")
 
-        api_instances = {
-            'auth': auth_instance,
-            'crypto': sdkms.v1.EncryptionAndDecryptionApi(api_client=client),
-            'signverify': sdkms.v1.SignAndVerifyApi(api_client=client),
-            'digest': sdkms.v1.DigestApi(api_client=client),
-            'sobjects': sdkms.v1.SecurityObjectsApi(api_client=client)
-        }
-        Logger.log("DSM client initialized successfully.")
+            # Step 3: Authenticate with DSM
+            client = sdkms.v1.ApiClient(configuration=config)
+            auth_instance = sdkms.v1.AuthenticationApi(api_client=client)
+            auth = auth_instance.authorize()
 
+            # Step 4: Store the access token
+            config.api_key['Authorization'] = auth.access_token
+            config.api_key_prefix['Authorization'] = 'Bearer'
+            Logger.log("[Step 4] Authentication successful. Access token retrieved.")
+
+            # Step 5: Initialize API instances
+            api_instances = {
+                'auth': auth_instance,
+                'crypto': sdkms.v1.EncryptionAndDecryptionApi(api_client=client),
+                'signverify': sdkms.v1.SignAndVerifyApi(api_client=client),
+                'digest': sdkms.v1.DigestApi(api_client=client),
+                'sobjects': sdkms.v1.SecurityObjectsApi(api_client=client)
+            }
+            Logger.log("[Step 5] DSM API instances initialized successfully.")
+
+        except Exception as e:
+            Logger.log(f"[Error] Failed to initialize DSM client: {e}", level="ERROR")
+            raise
+
+    
     @staticmethod
     def get_instance(name):
+        """
+        Get DSM API Instance
+        --------------------
+
+        Retrieves the API instance for a given functionality (e.g., encryption, signing).
+
+        Parameters:
+            name (str): The name of the API instance to retrieve. Valid options include:
+                - 'auth': Authentication API
+                - 'crypto': Encryption and Decryption API
+                - 'signverify': Signing and Verification API
+                - 'digest': Digest API
+                - 'sobjects': Security Objects API
+
+        Returns:
+            sdkms.v1.<API_Instance>: The requested API instance.
+
+        Logs:
+            - Retrieval of the specified API instance.
+            - Errors if the instance is not found.
+
+        Raises:
+            KeyError: If the requested API instance name is invalid or not initialized.
+        """
+        Logger.log(f"Retrieving API instance for: {name}")
+        if name not in api_instances:
+            Logger.log(f"[Error] API instance '{name}' not found.", level="ERROR")
+            raise KeyError(f"API instance '{name}' is not initialized.")
+
         return api_instances[name]
 
 
@@ -364,191 +442,8 @@ class CryptoManager:
         Logger.log(f"Signature verification result: {result.result}")
         return result.result
 
+
 # Workflows
-# CryptoManager
-class CryptoManager:
-    """
-    CryptoManager
-    ==============
-
-    This class provides utility functions to manage cryptographic operations 
-    using the Fortanix DSM. It includes methods for key management, encryption, 
-    decryption, signing, and signature verification.
-
-    Methods:
-        - create_or_retrieve_key: Creates or retrieves cryptographic keys.
-        - encrypt: Encrypts plaintext using the DSM.
-        - decrypt: Decrypts ciphertext using the DSM.
-        - sign: Signs data using the DSM.
-        - verify: Verifies a signature using the DSM.
-
-    Dependencies:
-        - Fortanix DSM SDK (sdkms)
-        - Logger (custom logging utility)
-
-    """
-
-    @staticmethod
-    def create_or_retrieve_key(name, key_type, size):
-        """
-        Create or Retrieve a Cryptographic Key
-        --------------------------------------
-
-        This method checks if a key with the given name exists in the DSM. If found,
-        it retrieves the key. Otherwise, it creates a new key with the specified type
-        and size.
-
-        Parameters:
-            name (str): Name of the key to retrieve or create.
-            key_type (str): Type of the key (e.g., ObjectType.AES or ObjectType.RSA).
-            size (int): Key size (e.g., 256 for AES, 2048 for RSA).
-
-        Returns:
-            str: The key ID of the retrieved or newly created key.
-
-        Logs:
-            - Checks for existing keys.
-            - Logs if the key is found or created.
-        """
-        Logger.log(f"Checking if key '{name}' exists.")
-        keys = DSMClient.get_instance('sobjects').get_security_objects()
-        for key in keys:
-            if key.name == name:
-                Logger.log(f"Key '{name}' found with ID: {key.kid}")
-                return key.kid
-
-        Logger.log(f"Creating new key: {name}")
-        request = sdkms.v1.SobjectRequest(
-            name=name, key_size=size, obj_type=key_type
-        )
-        key_id = DSMClient.get_instance('sobjects').generate_security_object(request).kid
-        Logger.log(f"Key '{name}' created with ID: {key_id}")
-        return key_id
-
-    @staticmethod
-    def encrypt(key_id, plaintext, object_type, mode=None, iv=None):
-        """
-        Encrypt Data
-        ------------
-
-        Encrypts plaintext using a specified cryptographic key stored in the DSM.
-
-        Parameters:
-            key_id (str): The ID of the key to use for encryption.
-            plaintext (str): The data to encrypt.
-            object_type (str): The type of encryption algorithm (e.g., ObjectType.AES).
-            mode (str, optional): The encryption mode (e.g., CipherMode.CBC).
-            iv (bytes, optional): The initialization vector (IV) for the encryption.
-
-        Returns:
-            sdkms.v1.EncryptResponse: The encryption result, including ciphertext and metadata.
-
-        Logs:
-            - Encryption start.
-            - Encryption success with ciphertext details.
-        """
-        Logger.log("Encrypting data.")
-        encrypt_request = sdkms.v1.EncryptRequest(
-            alg=object_type, plain=bytearray(plaintext, 'utf-8'), mode=mode, iv=iv
-        )
-        result = DSMClient.get_instance('crypto').encrypt(key_id, encrypt_request)
-        Logger.log(f"Encryption successful. Ciphertext: {result.cipher}")
-        return result
-
-    @staticmethod
-    def decrypt(key_id, ciphertext, object_type, mode=None, iv=None):
-        """
-        Decrypt Data
-        ------------
-
-        Decrypts ciphertext using a specified cryptographic key stored in the DSM.
-
-        Parameters:
-            key_id (str): The ID of the key to use for decryption.
-            ciphertext (bytes): The encrypted data to decrypt.
-            object_type (str): The type of encryption algorithm (e.g., ObjectType.AES).
-            mode (str, optional): The decryption mode (e.g., CipherMode.CBC).
-            iv (bytes, optional): The initialization vector (IV) used during encryption.
-
-        Returns:
-            str: The decrypted plaintext data.
-
-        Logs:
-            - Decryption start.
-            - Decryption success with plaintext details.
-        """
-        Logger.log("Decrypting data.")
-        decrypt_request = sdkms.v1.DecryptRequest(
-            alg=object_type, cipher=ciphertext, mode=mode, iv=iv
-        )
-        result = DSMClient.get_instance('crypto').decrypt(key_id, decrypt_request)
-        Logger.log(f"Decryption successful. Plaintext: {result.plain.decode('utf-8')}")
-        return result.plain.decode('utf-8')
-
-    @staticmethod
-    def sign(key_id, message):
-        """
-        Sign Data
-        ---------
-
-        Generates a digital signature for the given message using a specified key.
-
-        Parameters:
-            key_id (str): The ID of the key to use for signing.
-            message (str): The data to sign.
-
-        Returns:
-            bytes: The generated digital signature.
-
-        Logs:
-            - Signing start.
-            - Signing success with signature details.
-        """
-        Logger.log("Signing data.")
-        digest_request = sdkms.v1.DigestRequest(
-            alg=DigestAlgorithm.SHA256, data=bytearray(message, 'utf-8')
-        )
-        digest = DSMClient.get_instance('digest').compute_digest(digest_request).digest
-
-        sign_request = sdkms.v1.SignRequest(hash=digest, hash_alg=DigestAlgorithm.SHA256)
-        result = DSMClient.get_instance('signverify').sign(key_id, sign_request)
-        Logger.log(f"Signature generated: {result.signature}")
-        return result.signature
-
-    @staticmethod
-    def verify(key_id, message, signature):
-        """
-        Verify a Signature
-        ------------------
-
-        Verifies the digital signature of a message using a specified key.
-
-        Parameters:
-            key_id (str): The ID of the key to use for verification.
-            message (str): The original message.
-            signature (bytes): The digital signature to verify.
-
-        Returns:
-            bool: True if the signature is valid; otherwise, False.
-
-        Logs:
-            - Verification start.
-            - Verification result.
-        """
-        Logger.log("Verifying signature.")
-        digest_request = sdkms.v1.DigestRequest(
-            alg=DigestAlgorithm.SHA256, data=bytearray(message, 'utf-8')
-        )
-        digest = DSMClient.get_instance('digest').compute_digest(digest_request).digest
-
-        verify_request = sdkms.v1.VerifyRequest(
-            hash=digest, signature=signature, hash_alg=DigestAlgorithm.SHA256
-        )
-        result = DSMClient.get_instance('signverify').verify(key_id, verify_request)
-        Logger.log(f"Signature verification result: {result.result}")
-        return result.result
-
-
 class Workflows:
     """
     Workflows
