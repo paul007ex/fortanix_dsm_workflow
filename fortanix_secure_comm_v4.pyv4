@@ -132,7 +132,7 @@ DEFAULT_API_ENDPOINT = "https://apps.smartkey.io"
 DEBUG = False
 
 # Global variables
-ca_certificate = None
+
 api_instances = {}
 
 # Utility Class for Logging
@@ -158,11 +158,7 @@ class DSMClient:
         config = sdkms.v1.configuration.Configuration()
         config.username = username
         config.password = password
-        config.verify_ssl = cl_args.verify_ssl
         config.host = cl_args.api_endpoint
-        
-        if ca_certificate:
-            config.ssl_ca_cert = ca_certificate
 
         client = sdkms.v1.ApiClient(configuration=config)
         auth_instance = sdkms.v1.AuthenticationApi(api_client=client)
@@ -797,7 +793,6 @@ if __name__ == '__main__':
     parser.add_argument('--api-endpoint', default=DEFAULT_API_ENDPOINT, help='Fortanix DSM API endpoint')
     parser.add_argument('--workflow', default="rsa", help="Workflow to execute: aes, rsa, combined (default: rsa)")
     parser.add_argument('--message', default="Hello Priya!", help="Plaintext message to encrypt. Default 'Hello Priya'")
-    parser.add_argument('--no-verify-ssl', action='store_false', dest='verify_ssl', help='Disable SSL verification')
     global cl_args
     cl_args = parser.parse_args()
 
