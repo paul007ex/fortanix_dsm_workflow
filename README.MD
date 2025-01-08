@@ -73,7 +73,7 @@ RSA is an asymmetric encryption algorithm that uses a **key pair** (public and p
 
 ---
 
-### ⚙️ **Combined AES-RSA Encryption**
+### ⚙️ -RSA Encryption**
 Combines the strengths of AES and RSA:
 - **Efficiency**: AES is faster and better suited for encrypting large data.
 - **Secure Key Exchange**: RSA ensures the secure transmission of the AES key.
@@ -86,6 +86,113 @@ Combines the strengths of AES and RSA:
 4. The receiver decrypts the AES key with their **RSA private key**, decrypts the ciphertext using AES, and verifies the signature.
 
 ---
+
+### 🔄 **Updated Supported Workflows**
+
+1. **AES Workflow**:
+   - **Description**: Uses symmetric encryption (AES) for encrypting and decrypting messages. The encryption leverages a randomly generated Initialization Vector (IV) for added security.
+   - **Steps**:
+     - Retrieve or create an AES key in DSM.
+     - Encrypt plaintext with the AES key and IV.
+     - Decrypt ciphertext with the same AES key and IV.
+
+2. **RSA Workflow**:
+   - **Description**: Implements asymmetric cryptography to encrypt data and create digital signatures. Public keys are used for encryption and signature verification, while private keys are used for decryption and signing.
+   - **Steps**:
+     - Retrieve or create RSA key pairs for sender and receiver in DSM.
+     - Encrypt plaintext with the receiver's public key.
+     - Sign the message hash with the sender's private key.
+     - Decrypt the ciphertext using the receiver's private key and verify the signature with the sender's public key.
+
+3. **Combined AES-RSA Workflow**:
+   - **Description**: Combines the efficiency of AES for encrypting messages with the security of RSA for encrypting the AES key and verifying the sender's identity.
+   - **Steps**:
+     - Encrypt the message with AES using a shared AES key and IV.
+     - Encrypt the AES key using the receiver's RSA public key.
+     - Sign the original plaintext message hash with the sender's RSA private key.
+     - Decrypt the AES key with the receiver's RSA private key, decrypt the ciphertext with AES, and verify the signature.
+
+---
+
+### 🛠️ **Classes Overview**
+
+1. **CryptoManager**:
+   - Centralizes cryptographic operations such as encryption, decryption, signing, and signature verification.
+   - Manages the creation and retrieval of AES and RSA keys from Fortanix DSM.
+   - Provides modular and reusable functions for secure communication workflows.
+
+   **Key Features**:
+   - **create_or_retrieve_key**:
+     Handles secure key management in DSM by retrieving existing keys or creating new ones dynamically.
+   - **encrypt**:
+     Provides both symmetric (AES) and asymmetric (RSA) encryption functionality.
+   - **decrypt**:
+     Allows decryption of ciphertext using AES or RSA, depending on the encryption workflow.
+   - **sign**:
+     Creates digital signatures to ensure message authenticity and integrity.
+   - **verify**:
+     Verifies digital signatures to confirm message authenticity.
+
+2. **Workflows**:
+   - Encapsulates high-level implementations of AES, RSA, and combined encryption workflows.
+   - Calls `CryptoManager` functions for cryptographic operations while managing the flow between encryption, decryption, signing, and verification steps.
+
+---
+
+### 🔐 **How DSM Ensures Secure Key Management**
+
+The **Fortanix Data Security Manager (DSM)** acts as the backbone for secure cryptographic operations by providing:
+
+1. **Centralized Key Storage**:
+   - All cryptographic keys (AES and RSA) are securely stored within DSM, ensuring protection against unauthorized access.
+   - Keys are never exposed outside DSM during operations.
+
+2. **Secure Key Retrieval**:
+   - The `create_or_retrieve_key` function ensures seamless access to keys by retrieving existing ones or creating new ones dynamically as needed.
+
+3. **Hardware Security Module (HSM) Backing**:
+   - DSM integrates with HSMs to provide hardware-level encryption and secure storage of cryptographic materials.
+
+4. **Role-Based Access Control (RBAC)**:
+   - DSM enforces granular access control, ensuring only authorized applications or users can perform cryptographic operations.
+
+5. **Auditability**:
+   - DSM logs all key usage and cryptographic operations, allowing for compliance and forensic analysis.
+
+---
+
+### 📋 **Future Potential Enhancements for Cryptographic Agility**
+
+1. **Algorithm Flexibility**:
+   - Extend support for additional encryption algorithms like AES-GCM, ECC (Elliptic Curve Cryptography), or ChaCha20 for broader compatibility.
+
+2. **Configurable Key Sizes**:
+   - Allow dynamic key size selection for AES and RSA during key creation to support a wider range of security requirements.
+
+3. **Multiple Modes of Operation**:
+   - Incorporate support for AES-GCM, AES-CTR, or RSA-OAEP to enhance security and performance for specific use cases.
+
+4. **Key Rotation**:
+   - Implement automatic key rotation policies to periodically refresh keys for improved security.
+
+5. **Versioning of Keys**:
+   - Track key versions to allow for backward compatibility and rollback during key rotation.
+
+6. **Cross-Platform Key Management**:
+   - Extend DSM integration to include support for cloud-native key management systems like AWS KMS or Azure Key Vault for hybrid deployments.
+
+7. **Quantum-Resistant Algorithms**:
+   - Explore quantum-safe encryption schemes to future-proof the solution.
+
+8. **Custom Signing Algorithms**:
+   - Allow the flexibility to select signing algorithms, such as ECDSA or EdDSA, based on application needs.
+
+9. **Multi-Factor Authentication (MFA) for Key Access**:
+   - Add an extra layer of security by requiring MFA for critical key operations.
+
+10. **Key Expiry Notifications**:
+    - Implement notifications for expiring keys to ensure proactive key lifecycle management.
+
 
 ## Protocol Overview 📡
 ### Sender-Receiver Flow
