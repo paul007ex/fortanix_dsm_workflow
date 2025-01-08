@@ -174,9 +174,6 @@ The **Fortanix Data Security Manager (DSM)** acts as the backbone for secure cry
    - Allow the flexibility to select signing algorithms, such as ECDSA or EdDSA, based on application needs.
 
 ---
-## How It Works
-
-This project demonstrates secure communication workflows using **Fortanix DSM**, implementing cryptographic best practices for **confidentiality**, **integrity**, and **authenticity** of messages.
 
 ### Protocol Overview
 The following steps detail the secure communication protocol used in this project:
@@ -271,8 +268,8 @@ python fortanix_dsm_workflowpy --api-key <API_KEY> --workflow <aes|rsa|combined>
 
 ---
 
-## Logging and Debugging 🛠️
-Detailed logs guide you through every step:
+## Logging and Debugging (not to be used in production..) 🛠️
+
 ```plaintext
 [INFO] [Step 1] Starting the script.
 [INFO] [Step 1] Initializing the DSM client.
