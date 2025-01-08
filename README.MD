@@ -73,21 +73,7 @@ RSA is an asymmetric encryption algorithm that uses a **key pair** (public and p
 
 ---
 
-### ⚙️ -RSA Encryption**
-Combines the strengths of AES and RSA:
-- **Efficiency**: AES is faster and better suited for encrypting large data.
-- **Secure Key Exchange**: RSA ensures the secure transmission of the AES key.
-- **Signature Verification**: RSA provides data authenticity and integrity.
-
-#### **Combined AES-RSA Workflow**:
-1. The **plaintext** is encrypted using AES with a shared AES key and IV. 🛡️
-2. The **AES key** is encrypted using the **receiver's RSA public key**.
-3. The **plaintext** is signed with the **sender's RSA private key**.
-4. The receiver decrypts the AES key with their **RSA private key**, decrypts the ciphertext using AES, and verifies the signature.
-
----
-
-### 🔄 **Updated Supported Workflows**
+### 🔄 **Supported Workflows**
 
 1. **AES Workflow**:
    - **Description**: Uses symmetric encryption (AES) for encrypting and decrypting messages. The encryption leverages a randomly generated Initialization Vector (IV) for added security.
@@ -187,25 +173,6 @@ The **Fortanix Data Security Manager (DSM)** acts as the backbone for secure cry
 8. **Custom Signing Algorithms**:
    - Allow the flexibility to select signing algorithms, such as ECDSA or EdDSA, based on application needs.
 
-9. **Multi-Factor Authentication (MFA) for Key Access**:
-   - Add an extra layer of security by requiring MFA for critical key operations.
-
-10. **Key Expiry Notifications**:
-    - Implement notifications for expiring keys to ensure proactive key lifecycle management.
-
-
-## Protocol Overview 📡
-### Sender-Receiver Flow
-1. **Sender** (e.g., John):
-   - Encrypts the message with an AES key.
-   - Encrypts the AES key with the receiver's RSA public key.
-   - Signs the message using their RSA private key.
-
-2. **Receiver** (e.g., Priya):
-   - Decrypts the AES key using their RSA private key.
-   - Decrypts the ciphertext with the AES key.
-   - Verifies the signature using the sender's RSA public key.
-
 ---
 ## How It Works
 
@@ -231,7 +198,7 @@ The following steps detail the secure communication protocol used in this projec
 
 ---
 
-### Protocol Wireframe: Data Flow Visualization
+###  Data Flow Visualization
 
 Below is a wireframe to illustrate the data flow between **Sender** (John) and **Receiver** (Priya) during the combined AES-RSA workflow:
 
